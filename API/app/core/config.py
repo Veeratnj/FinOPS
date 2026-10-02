@@ -2,13 +2,26 @@
 Application configuration using Pydantic settings.
 """
 
+import os
+from pathlib import Path
 import secrets
 from typing import List, Optional
 
+from dotenv import load_dotenv
 from pydantic import computed_field
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-import os
+
+# Locate root .env (d:\workspace\ctrls\FinOPS\.env)
+_ROOT_DIR = Path(__file__).resolve().parents[3]
+_ROOT_ENV = _ROOT_DIR / ".env"
+_LOCAL_ENV = Path(__file__).resolve().parents[2] / ".env"
+
+if _ROOT_ENV.is_file():
+    load_dotenv(_ROOT_ENV, override=False)
+elif _LOCAL_ENV.is_file():
+    load_dotenv(_LOCAL_ENV, override=False)
+else:
+    load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -54,8 +67,9 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[str] = ["*"]
 
     class Config:
-        env_file = ".env"
+        env_file = [str(_ROOT_ENV), str(_LOCAL_ENV), ".env"]
         case_sensitive = True
+        extra = "ignore"
 
 
 settings = Settings()
