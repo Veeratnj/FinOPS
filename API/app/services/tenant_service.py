@@ -2,6 +2,9 @@
 Tenant service.
 """
 
+from __future__ import annotations
+
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app import models, schemas
@@ -84,12 +87,12 @@ class TenantService:
         return tenant
 
     @staticmethod
-    def get_tenant(db: Session, tenant_id: str) -> models.Tenant | None:
+    def get_tenant(db: Session, tenant_id: str) -> Optional[models.Tenant]:
         """Get tenant by ID."""
         return tenant_repo.get(db, id=tenant_id)
 
     @staticmethod
-    def get_tenant_by_slug(db: Session, slug: str) -> models.Tenant | None:
+    def get_tenant_by_slug(db: Session, slug: str) -> Optional[models.Tenant]:
         """Get tenant by slug."""
         return tenant_repo.get_by_slug(db, slug)
 

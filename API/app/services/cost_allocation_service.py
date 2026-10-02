@@ -2,8 +2,10 @@
 Cost allocation service.
 """
 
+from __future__ import annotations
+
 from decimal import Decimal
-from typing import List
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -36,7 +38,7 @@ class CostAllocationService:
         return result
 
     @staticmethod
-    def get_team(db: Session, tenant_id: str, team_id: str) -> schemas.Team | None:
+    def get_team(db: Session, tenant_id: str, team_id: str) -> Optional[schemas.Team]:
         team = cost_allocation_repo.get_team(db, tenant_id, team_id)
         if team is None:
             return None
@@ -54,7 +56,7 @@ class CostAllocationService:
         )
 
     @staticmethod
-    def get_team_breakdown(db: Session, tenant_id: str, team_id: str) -> schemas.TeamBreakdown | None:
+    def get_team_breakdown(db: Session, tenant_id: str, team_id: str) -> Optional[schemas.TeamBreakdown]:
         team = cost_allocation_repo.get_team(db, tenant_id, team_id)
         if team is None:
             return None
@@ -62,7 +64,7 @@ class CostAllocationService:
         return schemas.TeamBreakdown(team=team.name, breakdown=breakdown)
 
     @staticmethod
-    def create_allocation_rule(db: Session, tenant_id: str, rule_in: schemas.CostAllocationRuleBase) -> dict:
+    def create_allocation_rule(db: Session, tenant_id: str, rule_in: schemas.CostAllocationRuleBase) -> Dict[str, Any]:
         team = cost_allocation_repo.get_team_by_name(db, tenant_id, rule_in.target)
         if team is None:
             return {"error": "Team not found"}
@@ -79,7 +81,7 @@ class CostAllocationService:
         return {"id": rule.id, "message": "Allocation rule created."}
 
     @staticmethod
-    def update_allocation_rule(db: Session, tenant_id: str, rule_id: str, rule_in: schemas.CostAllocationRuleUpdate) -> dict | None:
+    def update_allocation_rule(db: Session, tenant_id: str, rule_id: str, rule_in: schemas.CostAllocationRuleUpdate) -> Optional[Dict[str, Any]]:
         rule = cost_allocation_repo.get_rule(db, tenant_id, rule_id)
         if rule is None:
             return None

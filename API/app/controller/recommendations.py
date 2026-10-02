@@ -1,6 +1,8 @@
 """Recommendations controller."""
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Body
 
@@ -20,7 +22,7 @@ def get_recommendation(recommendation_id: str) -> dict[str, Any]:
 
 
 @recommendations_controller.get("/filter")
-def filter_recommendations(category: str | None = None, impact: str | None = None) -> list[dict[str, Any]]:
+def filter_recommendations(category: Optional[str] = None, impact: Optional[str] = None) -> list[dict[str, Any]]:
     return [
         {"id": "rec-1", "title": "Right-size EC2 instances in us-east-1", "category": category or "Compute", "impact": impact or "High", "effort": "Low", "savings": 18500, "status": "open"}
     ]

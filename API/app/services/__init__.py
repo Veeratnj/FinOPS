@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 from datetime import timedelta
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
 from app import models, schemas
-
-from app import models
-
 from .auth_service import AuthService
 from .tenant_service import TenantService
 
@@ -19,7 +19,7 @@ from app.repositories.user_repo import user_repo
 class AuthService:
     """Authentication service."""
 
-    def authenticate_user(self, db: Session, email: str, password: str) -> models.User | None:
+    def authenticate_user(self, db: Session, email: str, password: str) -> Optional[models.User]:
         """Authenticate user with email and password."""
         user = user_repo.get_by_email(db, email=email)
         if not user:
@@ -46,7 +46,7 @@ class AuthService:
             extra_claims={"tenant_id": user.tenant_id}
         )
 
-    def login(self, db: Session, email: str, password: str) -> schemas.Token | None:
+    def login(self, db: Session, email: str, password: str) -> Optional[schemas.Token]:
         """Login user and return tokens."""
         user = self.authenticate_user(db, email, password)
         if not user or not user.is_active:
@@ -62,7 +62,7 @@ class AuthService:
             user=user,
         )
 
-    def refresh_access_token(self, db: Session, refresh_token: str) -> schemas.Token | None:
+    def refresh_access_token(self, db: Session, refresh_token: str) -> Optional[schemas.Token]:
         """Refresh access token using refresh token."""
         try:
             payload = security.verify_token(refresh_token)

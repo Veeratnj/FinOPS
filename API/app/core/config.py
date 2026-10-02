@@ -3,7 +3,7 @@ Application configuration using Pydantic settings.
 """
 
 import secrets
-from typing import List
+from typing import List, Optional
 
 from pydantic import computed_field
 from pydantic_settings import BaseSettings
@@ -26,11 +26,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days
 
     # Database
-    DATABASE_URL: str | None = os.getenv("DATABASE_URL")
-    POSTGRES_SERVER: str | None = os.getenv("POSTGRES_SERVER", "localhost")
-    POSTGRES_USER: str | None = os.getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD: str | None = os.getenv("POSTGRES_PASSWORD", "admin@123")
-    POSTGRES_DB: str | None = os.getenv("POSTGRES_DB", "mydatabase")
+    DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL")
+    POSTGRES_SERVER: Optional[str] = os.getenv("POSTGRES_SERVER", "localhost")
+    POSTGRES_USER: Optional[str] = os.getenv("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD: Optional[str] = os.getenv("POSTGRES_PASSWORD", "admin@123")
+    POSTGRES_DB: Optional[str] = os.getenv("POSTGRES_DB", "mydatabase")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", 5432))
 
     @computed_field

@@ -1,6 +1,8 @@
 """Anomalies controller."""
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -36,7 +38,7 @@ def get_anomaly(
 
 @anomalies_controller.get("/filter/by-severity", response_model=list[schemas.Anomaly])
 def filter_anomalies(
-    severity: str | None = None,
+    severity: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ) -> list[schemas.Anomaly]:

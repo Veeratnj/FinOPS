@@ -1,7 +1,6 @@
-"""
-Resource repository and normalization support.
-"""
+from __future__ import annotations
 
+from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 
 from app.models import Resource
@@ -18,7 +17,7 @@ class ResourceRepository(BaseRepository[Resource]):
         provider: str,
         resource_type: str,
         external_id: str,
-    ) -> Resource | None:
+    ) -> Optional[Resource]:
         return db.query(Resource).filter(
             Resource.tenant_id == tenant_id,
             Resource.provider == provider,
@@ -33,10 +32,10 @@ class ResourceRepository(BaseRepository[Resource]):
         provider: str,
         resource_type: str,
         external_id: str,
-        name: str | None = None,
-        region: str | None = None,
-        tags: dict | None = None,
-        metadata: dict | None = None,
+        name: Optional[str] = None,
+        region: Optional[str] = None,
+        tags: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         resource = self.get_by_ref(db, tenant_id, provider, resource_type, external_id)
         if resource:

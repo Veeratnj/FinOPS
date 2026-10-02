@@ -1,7 +1,6 @@
-"""
-Agent repository.
-"""
+from __future__ import annotations
 
+from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from app.models import Agent
@@ -13,13 +12,13 @@ class AgentRepository(BaseRepository[Agent]):
 
     def get_by_tenant_and_name(
         self, db: Session, tenant_id: str, name: str
-    ) -> Agent | None:
+    ) -> Optional[Agent]:
         return db.query(Agent).filter(
             Agent.tenant_id == tenant_id,
             Agent.name == name,
         ).first()
 
-    def get_by_id(self, db: Session, agent_id: str) -> Agent | None:
+    def get_by_id(self, db: Session, agent_id: str) -> Optional[Agent]:
         return db.query(Agent).filter(Agent.id == agent_id).first()
 
     def get_by_tenant(self, db: Session, tenant_id: str) -> list[Agent]:

@@ -1,9 +1,7 @@
-"""
-Authentication service.
-"""
+from __future__ import annotations
 
 from datetime import timedelta
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy.orm import Session
 
@@ -18,7 +16,7 @@ class AuthService:
     """Authentication service."""
 
     @staticmethod
-    def authenticate_user(db: Session, email: str, password: str) -> models.User | None:
+    def authenticate_user(db: Session, email: str, password: str) -> Optional[models.User]:
         """Authenticate user with email and password."""
         user = user_repo.get_by_email(db, email=email)
         if not user:
@@ -48,7 +46,7 @@ class AuthService:
         )
 
     @staticmethod
-    def login(db: Session, email: str, password: str) -> schemas.Token | None:
+    def login(db: Session, email: str, password: str) -> Optional[schemas.Token]:
         """Login user and return tokens."""
         user = AuthService.authenticate_user(db, email, password)
         if not user or not user.is_active:
@@ -65,7 +63,7 @@ class AuthService:
         )
 
     @staticmethod
-    def refresh_access_token(db: Session, refresh_token: str) -> schemas.Token | None:
+    def refresh_access_token(db: Session, refresh_token: str) -> Optional[schemas.Token]:
         """Refresh access token using refresh token."""
         try:
             payload = security.verify_token(refresh_token)

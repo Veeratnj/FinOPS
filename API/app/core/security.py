@@ -3,7 +3,7 @@ Security utilities for JWT tokens and password hashing.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any, Dict, Optional, Union
 
 from jose import jwt
 from app.core.config import settings
@@ -34,7 +34,7 @@ def validate_password(password: str) -> str:
 
 
 def create_access_token(
-    subject: Union[str, Any], expires_delta: timedelta = None, extra_claims: dict[str, Any] | None = None
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None, extra_claims: Optional[Dict[str, Any]] = None
 ) -> str:
     """Create JWT access token."""
     if expires_delta:
@@ -52,7 +52,7 @@ def create_access_token(
 
 
 def create_refresh_token(
-    subject: Union[str, Any], expires_delta: timedelta = None, extra_claims: dict[str, Any] | None = None
+    subject: Union[str, Any], expires_delta: Optional[timedelta] = None, extra_claims: Optional[Dict[str, Any]] = None
 ) -> str:
     """Create JWT refresh token."""
     if expires_delta:
@@ -69,7 +69,7 @@ def create_refresh_token(
     return encoded_jwt
 
 
-def verify_token(token: str) -> dict:
+def verify_token(token: str) -> Dict[str, Any]:
     """Verify and decode JWT token."""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
