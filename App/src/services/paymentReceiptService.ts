@@ -24,7 +24,7 @@ class PaymentReceiptService extends ApiService {
   downloadReceipt(
     receiptId: string
   ) {
-    return `http://localhost:8001/payment-receipts/${receiptId}/download`;
+    return `${this.baseUrl}/payment-receipts/${receiptId}/download`;
   }
 }
 

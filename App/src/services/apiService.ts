@@ -23,7 +23,7 @@ export interface PaginatedResponse<T> {
  * Base API service class
  */
 export class ApiService {
-  private baseUrl: string;
+  protected baseUrl: string;
   private timeout: number = 5000;
 
   constructor(baseUrl: string = import.meta.env.VITE_API_URL ||

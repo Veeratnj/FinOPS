@@ -7,7 +7,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: ["business.ctrls.co","https://business.seynova.ai","business.seynova.ai"], // 👈 add this
+    allowedHosts: [
+      "business.seynova.ai",
+      "business.ctrls.co",
+      ".seynova.ai",
+      ".ctrls.co",
+      "localhost",
+    ],
     hmr: {
       overlay: false,
     },
