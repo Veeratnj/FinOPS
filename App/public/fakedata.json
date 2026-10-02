@@ -1,0 +1,2118 @@
+{
+  "summary": {
+    "totalSpend": 284750,
+    "monthOverMonthChange": 12.4,
+    "forecastedSpend": 310000,
+    "budgetLimit": 300000,
+    "savingsOpportunity": 47200,
+    "anomaliesDetected": 3
+  },
+  "costByCategory": [
+    {
+      "name": "Compute",
+      "value": 120000,
+      "change": 8.2
+    },
+    {
+      "name": "Storage",
+      "value": 54000,
+      "change": -3.1
+    },
+    {
+      "name": "Network",
+      "value": 38000,
+      "change": 15.6
+    },
+    {
+      "name": "Kubernetes",
+      "value": 47000,
+      "change": 22.1
+    },
+    {
+      "name": "Database",
+      "value": 25750,
+      "change": 5
+    }
+  ],
+  "costTrend": [
+    {
+      "month": "Apr 2025",
+      "compute": 95000,
+      "storage": 48000,
+      "network": 30000,
+      "kubernetes": 35000,
+      "database": 22000
+    },
+    {
+      "month": "May 2025",
+      "compute": 98000,
+      "storage": 49500,
+      "network": 31000,
+      "kubernetes": 36500,
+      "database": 22500
+    },
+    {
+      "month": "Jun 2025",
+      "compute": 100000,
+      "storage": 50000,
+      "network": 32000,
+      "kubernetes": 38000,
+      "database": 23000
+    },
+    {
+      "month": "Jul 2025",
+      "compute": 102000,
+      "storage": 51000,
+      "network": 33000,
+      "kubernetes": 39000,
+      "database": 23200
+    },
+    {
+      "month": "Aug 2025",
+      "compute": 105000,
+      "storage": 52000,
+      "network": 33500,
+      "kubernetes": 40000,
+      "database": 23500
+    },
+    {
+      "month": "Sep 2025",
+      "compute": 107000,
+      "storage": 53000,
+      "network": 34000,
+      "kubernetes": 41000,
+      "database": 24000
+    },
+    {
+      "month": "Oct 2025",
+      "compute": 108000,
+      "storage": 53500,
+      "network": 35000,
+      "kubernetes": 42000,
+      "database": 24200
+    },
+    {
+      "month": "Nov 2025",
+      "compute": 110000,
+      "storage": 54000,
+      "network": 35500,
+      "kubernetes": 43000,
+      "database": 24500
+    },
+    {
+      "month": "Dec 2025",
+      "compute": 112000,
+      "storage": 54500,
+      "network": 36000,
+      "kubernetes": 44000,
+      "database": 25000
+    },
+    {
+      "month": "Jan 2026",
+      "compute": 115000,
+      "storage": 55000,
+      "network": 36500,
+      "kubernetes": 45000,
+      "database": 25200
+    },
+    {
+      "month": "Feb 2026",
+      "compute": 118000,
+      "storage": 55500,
+      "network": 37500,
+      "kubernetes": 46000,
+      "database": 25500
+    },
+    {
+      "month": "Mar 2026",
+      "compute": 120000,
+      "storage": 54000,
+      "network": 38000,
+      "kubernetes": 47000,
+      "database": 25750
+    }
+  ],
+  "topServices": [
+    {
+      "name": "EC2 Instances",
+      "provider": "AWS",
+      "cost": 68500,
+      "usage": "1,240 vCPU-hours",
+      "trend": 12.3
+    },
+    {
+      "name": "GKE Clusters",
+      "provider": "GCP",
+      "cost": 34200,
+      "usage": "8 clusters",
+      "trend": 22.1
+    },
+    {
+      "name": "S3 Storage",
+      "provider": "AWS",
+      "cost": 28400,
+      "usage": "450 TB",
+      "trend": -2.4
+    },
+    {
+      "name": "Azure VMs",
+      "provider": "Azure",
+      "cost": 24800,
+      "usage": "380 instances",
+      "trend": 9.7
+    },
+    {
+      "name": "Cloud SQL",
+      "provider": "GCP",
+      "cost": 18900,
+      "usage": "12 instances",
+      "trend": 5.2
+    },
+    {
+      "name": "RDS Instances",
+      "provider": "AWS",
+      "cost": 16200,
+      "usage": "24 instances",
+      "trend": 3.1
+    },
+    {
+      "name": "Azure Blob",
+      "provider": "Azure",
+      "cost": 14800,
+      "usage": "280 TB",
+      "trend": -1.8
+    },
+    {
+      "name": "Lambda Functions",
+      "provider": "AWS",
+      "cost": 12600,
+      "usage": "45M invocations",
+      "trend": 18.4
+    },
+    {
+      "name": "Cloud CDN",
+      "provider": "GCP",
+      "cost": 11200,
+      "usage": "890 TB egress",
+      "trend": 25.6
+    },
+    {
+      "name": "Azure AKS",
+      "provider": "Azure",
+      "cost": 9800,
+      "usage": "3 clusters",
+      "trend": 14.2
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "rec-1",
+      "title": "Right-size EC2 instances in us-east-1",
+      "category": "Compute",
+      "impact": "High",
+      "effort": "Low",
+      "savings": 18500,
+      "status": "open",
+      "steps": [
+        "Identify underutilized instances with <20% CPU",
+        "Migrate to smaller instance types",
+        "Validate performance after migration"
+      ]
+    },
+    {
+      "id": "rec-2",
+      "title": "Delete orphaned EBS volumes",
+      "category": "Storage",
+      "impact": "Medium",
+      "effort": "Low",
+      "savings": 4200,
+      "status": "open",
+      "steps": [
+        "List all unattached EBS volumes",
+        "Verify no snapshots depend on them",
+        "Delete confirmed orphans"
+      ]
+    },
+    {
+      "id": "rec-3",
+      "title": "Purchase Reserved Instances for stable workloads",
+      "category": "Compute",
+      "impact": "High",
+      "effort": "Medium",
+      "savings": 12000,
+      "status": "in_progress",
+      "steps": [
+        "Analyze 90-day usage patterns",
+        "Identify stable baseline workloads",
+        "Purchase 1-year RIs for qualifying instances"
+      ]
+    },
+    {
+      "id": "rec-4",
+      "title": "Optimize GKE node pool autoscaling",
+      "category": "Kubernetes",
+      "impact": "High",
+      "effort": "High",
+      "savings": 8500,
+      "status": "open",
+      "steps": [
+        "Review current autoscaler config",
+        "Set appropriate min/max node counts",
+        "Enable vertical pod autoscaling"
+      ]
+    },
+    {
+      "id": "rec-5",
+      "title": "Migrate infrequent S3 data to Glacier",
+      "category": "Storage",
+      "impact": "Medium",
+      "effort": "Low",
+      "savings": 2800,
+      "status": "done",
+      "steps": [
+        "Identify objects not accessed in 90 days",
+        "Create lifecycle policy",
+        "Monitor retrieval patterns"
+      ]
+    },
+    {
+      "id": "rec-6",
+      "title": "Consolidate underused Azure SQL databases",
+      "category": "Database",
+      "impact": "Medium",
+      "effort": "Medium",
+      "savings": 3200,
+      "status": "open",
+      "steps": [
+        "Audit database utilization metrics",
+        "Identify consolidation candidates",
+        "Plan migration and test"
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "id": "anom-1",
+      "service": "Lambda Functions",
+      "detectedAt": "2026-03-12T14:32:00Z",
+      "severity": "Critical",
+      "spike": 340,
+      "description": "Sudden 340% spike in Lambda invocations — potential infinite loop in event trigger.",
+      "data": [
+        10,
+        12,
+        11,
+        13,
+        12,
+        45,
+        48
+      ]
+    },
+    {
+      "id": "anom-2",
+      "service": "Cloud CDN",
+      "detectedAt": "2026-03-11T09:15:00Z",
+      "severity": "High",
+      "spike": 180,
+      "description": "CDN egress costs jumped 180% — possible cache miss storm or DDoS.",
+      "data": [
+        20,
+        22,
+        21,
+        23,
+        42,
+        58,
+        60
+      ]
+    },
+    {
+      "id": "anom-3",
+      "service": "EC2 Instances",
+      "detectedAt": "2026-03-10T22:47:00Z",
+      "severity": "Medium",
+      "spike": 65,
+      "description": "EC2 spend increased 65% in ap-southeast-1 — unauthorized instance provisioning suspected.",
+      "data": [
+        30,
+        32,
+        31,
+        33,
+        35,
+        50,
+        52
+      ]
+    },
+    {
+      "id": "anom-4",
+      "service": "Azure Blob",
+      "detectedAt": "2026-03-08T06:20:00Z",
+      "severity": "High",
+      "spike": 120,
+      "description": "Blob storage transactions spiked 120% — large batch job may need optimization.",
+      "data": [
+        15,
+        14,
+        16,
+        15,
+        18,
+        33,
+        35
+      ]
+    },
+    {
+      "id": "anom-5",
+      "service": "RDS Instances",
+      "detectedAt": "2026-03-06T18:55:00Z",
+      "severity": "Medium",
+      "spike": 45,
+      "description": "RDS IOPS charges increased 45% — query optimization recommended.",
+      "data": [
+        25,
+        26,
+        24,
+        27,
+        28,
+        38,
+        40
+      ]
+    }
+  ],
+  "kubernetes": {
+    "clusters": [
+      {
+        "name": "prod-us-east",
+        "nodes": 24,
+        "cpuUtil": 72,
+        "memUtil": 68,
+        "cost": 18500,
+        "efficiency": 85
+      },
+      {
+        "name": "prod-eu-west",
+        "nodes": 16,
+        "cpuUtil": 58,
+        "memUtil": 52,
+        "cost": 12800,
+        "efficiency": 71
+      },
+      {
+        "name": "staging-us",
+        "nodes": 8,
+        "cpuUtil": 34,
+        "memUtil": 29,
+        "cost": 6200,
+        "efficiency": 48
+      }
+    ],
+    "namespaces": [
+      {
+        "name": "api-gateway",
+        "cluster": "prod-us-east",
+        "cpuReq": "8 cores",
+        "memReq": "32 GB",
+        "cost": 4200,
+        "waste": 12
+      },
+      {
+        "name": "ml-pipeline",
+        "cluster": "prod-us-east",
+        "cpuReq": "16 cores",
+        "memReq": "64 GB",
+        "cost": 7800,
+        "waste": 35
+      },
+      {
+        "name": "frontend",
+        "cluster": "prod-us-east",
+        "cpuReq": "4 cores",
+        "memReq": "16 GB",
+        "cost": 2100,
+        "waste": 8
+      },
+      {
+        "name": "data-ingestion",
+        "cluster": "prod-eu-west",
+        "cpuReq": "12 cores",
+        "memReq": "48 GB",
+        "cost": 5600,
+        "waste": 22
+      },
+      {
+        "name": "monitoring",
+        "cluster": "prod-eu-west",
+        "cpuReq": "4 cores",
+        "memReq": "16 GB",
+        "cost": 1800,
+        "waste": 45
+      },
+      {
+        "name": "ci-cd",
+        "cluster": "staging-us",
+        "cpuReq": "6 cores",
+        "memReq": "24 GB",
+        "cost": 2800,
+        "waste": 52
+      },
+      {
+        "name": "testing",
+        "cluster": "staging-us",
+        "cpuReq": "4 cores",
+        "memReq": "16 GB",
+        "cost": 1600,
+        "waste": 68
+      },
+      {
+        "name": "auth-service",
+        "cluster": "prod-eu-west",
+        "cpuReq": "2 cores",
+        "memReq": "8 GB",
+        "cost": 980,
+        "waste": 15
+      }
+    ]
+  },
+  "teams": [
+    {
+      "name": "Platform Engineering",
+      "department": "Engineering",
+      "allocated": 85000,
+      "actual": 92400,
+      "variance": 8.7,
+      "services": 18
+    },
+    {
+      "name": "Data Science",
+      "department": "Engineering",
+      "allocated": 65000,
+      "actual": 58200,
+      "variance": -10.5,
+      "services": 12
+    },
+    {
+      "name": "Frontend",
+      "department": "Engineering",
+      "allocated": 35000,
+      "actual": 33100,
+      "variance": -5.4,
+      "services": 8
+    },
+    {
+      "name": "DevOps",
+      "department": "Operations",
+      "allocated": 48000,
+      "actual": 52800,
+      "variance": 10,
+      "services": 22
+    },
+    {
+      "name": "QA",
+      "department": "Operations",
+      "allocated": 22000,
+      "actual": 19500,
+      "variance": -11.4,
+      "services": 6
+    },
+    {
+      "name": "Security",
+      "department": "Operations",
+      "allocated": 30000,
+      "actual": 28750,
+      "variance": -4.2,
+      "services": 10
+    }
+  ],
+  "unitEconomics": [
+    {
+      "month": "Apr 2025",
+      "costPerUser": 2.45,
+      "costPerTransaction": 0.0032,
+      "revenue": 890000,
+      "margin": 74.2
+    },
+    {
+      "month": "May 2025",
+      "costPerUser": 2.38,
+      "costPerTransaction": 0.0031,
+      "revenue": 920000,
+      "margin": 74.8
+    },
+    {
+      "month": "Jun 2025",
+      "costPerUser": 2.42,
+      "costPerTransaction": 0.0033,
+      "revenue": 950000,
+      "margin": 74.4
+    },
+    {
+      "month": "Jul 2025",
+      "costPerUser": 2.5,
+      "costPerTransaction": 0.0034,
+      "revenue": 980000,
+      "margin": 74
+    },
+    {
+      "month": "Aug 2025",
+      "costPerUser": 2.55,
+      "costPerTransaction": 0.0035,
+      "revenue": 1010000,
+      "margin": 73.6
+    },
+    {
+      "month": "Sep 2025",
+      "costPerUser": 2.48,
+      "costPerTransaction": 0.0033,
+      "revenue": 1050000,
+      "margin": 74.1
+    },
+    {
+      "month": "Oct 2025",
+      "costPerUser": 2.52,
+      "costPerTransaction": 0.0034,
+      "revenue": 1080000,
+      "margin": 73.8
+    },
+    {
+      "month": "Nov 2025",
+      "costPerUser": 2.58,
+      "costPerTransaction": 0.0036,
+      "revenue": 1120000,
+      "margin": 73.4
+    },
+    {
+      "month": "Dec 2025",
+      "costPerUser": 2.62,
+      "costPerTransaction": 0.0037,
+      "revenue": 1150000,
+      "margin": 73
+    },
+    {
+      "month": "Jan 2026",
+      "costPerUser": 2.68,
+      "costPerTransaction": 0.0038,
+      "revenue": 1180000,
+      "margin": 72.6
+    },
+    {
+      "month": "Feb 2026",
+      "costPerUser": 2.72,
+      "costPerTransaction": 0.0039,
+      "revenue": 1220000,
+      "margin": 72.2
+    },
+    {
+      "month": "Mar 2026",
+      "costPerUser": 2.78,
+      "costPerTransaction": 0.004,
+      "revenue": 1260000,
+      "margin": 71.8
+    }
+  ],
+  "budgets": [
+    {
+      "name": "Compute Budget",
+      "limit": 130000,
+      "spent": 120000,
+      "forecast": 135000,
+      "status": "At Risk",
+      "owner": "Platform Engineering"
+    },
+    {
+      "name": "Storage Budget",
+      "limit": 60000,
+      "spent": 54000,
+      "forecast": 58000,
+      "status": "On Track",
+      "owner": "Data Science"
+    },
+    {
+      "name": "Network Budget",
+      "limit": 45000,
+      "spent": 38000,
+      "forecast": 42000,
+      "status": "On Track",
+      "owner": "DevOps"
+    },
+    {
+      "name": "K8s Budget",
+      "limit": 40000,
+      "spent": 47000,
+      "forecast": 52000,
+      "status": "Exceeded",
+      "owner": "Platform Engineering"
+    },
+    {
+      "name": "Database Budget",
+      "limit": 30000,
+      "spent": 25750,
+      "forecast": 28000,
+      "status": "On Track",
+      "owner": "Data Science"
+    }
+  ],
+  "virtualTags": [
+    {
+      "provider": "AWS",
+      "rawKey": "aws:createdBy",
+      "rawValue": "team-platform",
+      "normalizedKey": "team",
+      "normalizedValue": "Platform Engineering"
+    },
+    {
+      "provider": "AWS",
+      "rawKey": "Environment",
+      "rawValue": "prod",
+      "normalizedKey": "environment",
+      "normalizedValue": "Production"
+    },
+    {
+      "provider": "GCP",
+      "rawKey": "gcp-project",
+      "rawValue": "ml-training",
+      "normalizedKey": "team",
+      "normalizedValue": "Data Science"
+    },
+    {
+      "provider": "GCP",
+      "rawKey": "env",
+      "rawValue": "production",
+      "normalizedKey": "environment",
+      "normalizedValue": "Production"
+    },
+    {
+      "provider": "Azure",
+      "rawKey": "department",
+      "rawValue": "ops",
+      "normalizedKey": "team",
+      "normalizedValue": "DevOps"
+    },
+    {
+      "provider": "Azure",
+      "rawKey": "ms-resource-usage",
+      "rawValue": "staging",
+      "normalizedKey": "environment",
+      "normalizedValue": "Staging"
+    },
+    {
+      "provider": "AWS",
+      "rawKey": "cost-center",
+      "rawValue": "cc-frontend",
+      "normalizedKey": "team",
+      "normalizedValue": "Frontend"
+    },
+    {
+      "provider": "GCP",
+      "rawKey": "app",
+      "rawValue": "auth-svc",
+      "normalizedKey": "service",
+      "normalizedValue": "Auth Service"
+    }
+  ],
+  "reports": [
+    {
+      "name": "Weekly Cost Summary",
+      "frequency": "Weekly",
+      "recipients": [
+        "cfo@company.com",
+        "vp-eng@company.com"
+      ],
+      "lastRun": "2026-03-10T08:00:00Z",
+      "format": "PDF"
+    },
+    {
+      "name": "Monthly Chargeback Report",
+      "frequency": "Monthly",
+      "recipients": [
+        "finance@company.com",
+        "eng-leads@company.com",
+        "ops@company.com"
+      ],
+      "lastRun": "2026-03-01T06:00:00Z",
+      "format": "CSV"
+    },
+    {
+      "name": "Anomaly Digest",
+      "frequency": "Daily",
+      "recipients": [
+        "devops@company.com"
+      ],
+      "lastRun": "2026-03-14T07:00:00Z",
+      "format": "Slack"
+    },
+    {
+      "name": "Quarterly Executive Review",
+      "frequency": "Quarterly",
+      "recipients": [
+        "ceo@company.com",
+        "cfo@company.com",
+        "cto@company.com",
+        "vp-eng@company.com"
+      ],
+      "lastRun": "2026-01-15T09:00:00Z",
+      "format": "PDF"
+    }
+  ],
+  "forecasting": {
+    "historical": [
+      {
+        "month": "Oct 2025",
+        "spend": 262700
+      },
+      {
+        "month": "Nov 2025",
+        "spend": 267500
+      },
+      {
+        "month": "Dec 2025",
+        "spend": 271500
+      },
+      {
+        "month": "Jan 2026",
+        "spend": 276700
+      },
+      {
+        "month": "Feb 2026",
+        "spend": 282500
+      },
+      {
+        "month": "Mar 2026",
+        "spend": 284750
+      }
+    ],
+    "forecast": {
+      "base": [
+        {
+          "month": "Apr 2026",
+          "spend": 292000,
+          "lower": 285000,
+          "upper": 299000
+        },
+        {
+          "month": "May 2026",
+          "spend": 298000,
+          "lower": 288000,
+          "upper": 308000
+        },
+        {
+          "month": "Jun 2026",
+          "spend": 305000,
+          "lower": 292000,
+          "upper": 318000
+        }
+      ],
+      "optimistic": [
+        {
+          "month": "Apr 2026",
+          "spend": 278000,
+          "lower": 272000,
+          "upper": 284000
+        },
+        {
+          "month": "May 2026",
+          "spend": 275000,
+          "lower": 267000,
+          "upper": 283000
+        },
+        {
+          "month": "Jun 2026",
+          "spend": 270000,
+          "lower": 260000,
+          "upper": 280000
+        }
+      ],
+      "pessimistic": [
+        {
+          "month": "Apr 2026",
+          "spend": 308000,
+          "lower": 298000,
+          "upper": 318000
+        },
+        {
+          "month": "May 2026",
+          "spend": 322000,
+          "lower": 308000,
+          "upper": 336000
+        },
+        {
+          "month": "Jun 2026",
+          "spend": 340000,
+          "lower": 322000,
+          "upper": 358000
+        }
+      ]
+    },
+    "drivers": [
+      {
+        "service": "GKE Clusters",
+        "impact": 8200,
+        "direction": "up",
+        "reason": "New ML workloads"
+      },
+      {
+        "service": "Lambda Functions",
+        "impact": 4500,
+        "direction": "up",
+        "reason": "Event processing growth"
+      },
+      {
+        "service": "S3 Storage",
+        "impact": -2100,
+        "direction": "down",
+        "reason": "Lifecycle policy savings"
+      },
+      {
+        "service": "EC2 Instances",
+        "impact": 5800,
+        "direction": "up",
+        "reason": "Traffic growth"
+      },
+      {
+        "service": "Azure VMs",
+        "impact": -1200,
+        "direction": "down",
+        "reason": "RI purchases"
+      }
+    ]
+  },
+  "users": [
+    {
+      "id": "usr-1",
+      "name": "Alice Johnson",
+      "email": "admin@finops.com",
+      "role": "admin",
+      "department": "Engineering",
+      "status": "active",
+      "createdAt": "2025-01-10T09:00:00Z",
+      "lastLogin": "2026-03-24T08:00:00Z",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=alice"
+    },
+    {
+      "id": "usr-2",
+      "name": "Bob Smith",
+      "email": "manager@finops.com",
+      "role": "manager",
+      "department": "Operations",
+      "status": "active",
+      "createdAt": "2025-02-15T10:00:00Z",
+      "lastLogin": "2026-03-23T14:30:00Z",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=bob"
+    },
+    {
+      "id": "usr-3",
+      "name": "Carol White",
+      "email": "analyst@finops.com",
+      "role": "analyst",
+      "department": "Finance",
+      "status": "active",
+      "createdAt": "2025-03-01T11:00:00Z",
+      "lastLogin": "2026-03-22T09:15:00Z",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=carol"
+    },
+    {
+      "id": "usr-4",
+      "name": "David Brown",
+      "email": "viewer@finops.com",
+      "role": "viewer",
+      "department": "Marketing",
+      "status": "inactive",
+      "createdAt": "2025-04-20T12:00:00Z",
+      "lastLogin": "2026-02-10T16:00:00Z",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=david"
+    }
+  ],
+  "tenants": [
+    {
+      "id": "ten-1",
+      "name": "Acme Corp",
+      "plan": "Enterprise",
+      "status": "active",
+      "usersCount": 45,
+      "createdAt": "2024-06-01T00:00:00Z",
+      "adminEmail": "admin@acme.com",
+      "region": "us-east-1",
+      "monthlySpend": 142000
+    },
+    {
+      "id": "ten-2",
+      "name": "Globex Inc",
+      "plan": "Pro",
+      "status": "active",
+      "usersCount": 22,
+      "createdAt": "2024-09-15T00:00:00Z",
+      "adminEmail": "admin@globex.com",
+      "region": "eu-west-1",
+      "monthlySpend": 87500
+    },
+    {
+      "id": "ten-3",
+      "name": "Initech LLC",
+      "plan": "Starter",
+      "status": "suspended",
+      "usersCount": 8,
+      "createdAt": "2025-01-20T00:00:00Z",
+      "adminEmail": "admin@initech.com",
+      "region": "ap-southeast-1",
+      "monthlySpend": 12400
+    }
+  ],
+  "paymentReceipts": [
+    {
+      "id": "rcpt-1",
+      "vendor": "AWS",
+      "amount": 68500,
+      "currency": "USD",
+      "date": "2026-03-01T00:00:00Z",
+      "status": "paid",
+      "invoiceNumber": "INV-AWS-2026-03",
+      "description": "AWS Monthly Bill - March 2026",
+      "category": "Compute",
+      "downloadUrl": "/receipts/rcpt-1.pdf"
+    },
+    {
+      "id": "rcpt-2",
+      "vendor": "GCP",
+      "amount": 47300,
+      "currency": "USD",
+      "date": "2026-03-02T00:00:00Z",
+      "status": "paid",
+      "invoiceNumber": "INV-GCP-2026-03",
+      "description": "GCP Monthly Bill - March 2026",
+      "category": "Kubernetes",
+      "downloadUrl": "/receipts/rcpt-2.pdf"
+    },
+    {
+      "id": "rcpt-3",
+      "vendor": "Azure",
+      "amount": 34800,
+      "currency": "USD",
+      "date": "2026-03-03T00:00:00Z",
+      "status": "pending",
+      "invoiceNumber": "INV-AZ-2026-03",
+      "description": "Azure Monthly Bill - March 2026",
+      "category": "Storage",
+      "downloadUrl": "/receipts/rcpt-3.pdf"
+    },
+    {
+      "id": "rcpt-4",
+      "vendor": "AWS",
+      "amount": 62100,
+      "currency": "USD",
+      "date": "2026-02-01T00:00:00Z",
+      "status": "paid",
+      "invoiceNumber": "INV-AWS-2026-02",
+      "description": "AWS Monthly Bill - Feb 2026",
+      "category": "Compute",
+      "downloadUrl": "/receipts/rcpt-4.pdf"
+    },
+    {
+      "id": "rcpt-5",
+      "vendor": "GCP",
+      "amount": 44600,
+      "currency": "USD",
+      "date": "2026-02-02T00:00:00Z",
+      "status": "paid",
+      "invoiceNumber": "INV-GCP-2026-02",
+      "description": "GCP Monthly Bill - Feb 2026",
+      "category": "Kubernetes",
+      "downloadUrl": "/receipts/rcpt-5.pdf"
+    }
+  ],
+  "agentOps": {
+    "summary": {
+      "requests": 156800,
+      "tokens": 24500000,
+      "cost": 4250.5,
+      "successRate": 98.2,
+      "avgLatency": 245
+    },
+    "kpis": [
+      {
+        "label": "Active Agents",
+        "value": "24",
+        "delta": "+3",
+        "trend": "up"
+      },
+      {
+        "label": "Error Rate",
+        "value": "1.8%",
+        "delta": "-0.5%",
+        "trend": "down"
+      },
+      {
+        "label": "Avg Token Cost",
+        "value": "$0.000173",
+        "delta": "+0.002%",
+        "trend": "up"
+      },
+      {
+        "label": "Monthly Spend",
+        "value": "$4,250",
+        "delta": "+12.3%",
+        "trend": "up"
+      }
+    ],
+    "costTrend": [
+      {
+        "month": "Dec 2025",
+        "cost": 3200
+      },
+      {
+        "month": "Jan 2026",
+        "cost": 3650
+      },
+      {
+        "month": "Feb 2026",
+        "cost": 3780
+      },
+      {
+        "month": "Mar 2026",
+        "cost": 4250
+      }
+    ],
+    "providerUsage": [
+      {
+        "name": "OpenAI GPT-4",
+        "requests": 78400,
+        "cost": 2150.25,
+        "latency": 240,
+        "share": 50
+      },
+      {
+        "name": "Claude 3.5",
+        "requests": 47040,
+        "cost": 1410.12,
+        "latency": 280,
+        "share": 30
+      },
+      {
+        "name": "Gemini Pro",
+        "requests": 23520,
+        "cost": 470.19,
+        "latency": 190,
+        "share": 15
+      },
+      {
+        "name": "Llama 2",
+        "requests": 7840,
+        "cost": 219.94,
+        "latency": 150,
+        "share": 5
+      }
+    ],
+    "recentExecutions": [
+      {
+        "id": "exec-001",
+        "name": "Customer Support Agent",
+        "status": "completed",
+        "duration": "2.3s",
+        "cost": "$0.045"
+      },
+      {
+        "id": "exec-002",
+        "name": "Data Analysis Pipeline",
+        "status": "completed",
+        "duration": "5.1s",
+        "cost": "$0.128"
+      },
+      {
+        "id": "exec-003",
+        "name": "Email Classification",
+        "status": "in_progress",
+        "duration": "1.8s",
+        "cost": "$0.031"
+      },
+      {
+        "id": "exec-004",
+        "name": "Report Generation",
+        "status": "completed",
+        "duration": "3.7s",
+        "cost": "$0.089"
+      },
+      {
+        "id": "exec-005",
+        "name": "Content Moderation",
+        "status": "failed",
+        "duration": "0.5s",
+        "cost": "$0.012"
+      }
+    ],
+    "toolRegistry": [
+      {
+        "name": "web-search",
+        "status": "healthy",
+        "latency": "120ms"
+      },
+      {
+        "name": "sql-query",
+        "status": "healthy",
+        "latency": "180ms"
+      },
+      {
+        "name": "pdf-extract",
+        "status": "healthy",
+        "latency": "240ms"
+      },
+      {
+        "name": "image-analysis",
+        "status": "degraded",
+        "latency": "450ms"
+      },
+      {
+        "name": "email-send",
+        "status": "healthy",
+        "latency": "90ms"
+      }
+    ],
+    "guardrails": [
+      {
+        "name": "Content Filter",
+        "value": 98.5,
+        "tone": "info"
+      },
+      {
+        "name": "Rate Limiter",
+        "value": 95.2,
+        "tone": "warning"
+      },
+      {
+        "name": "Cost Threshold",
+        "value": 87.3,
+        "tone": "critical"
+      },
+      {
+        "name": "Latency Monitor",
+        "value": 92.8,
+        "tone": "info"
+      }
+    ],
+    "ragStats": [
+      {
+        "name": "Documents Indexed",
+        "value": "1,250"
+      },
+      {
+        "name": "Avg Retrieval Time",
+        "value": "145ms"
+      },
+      {
+        "name": "Retrieval Accuracy",
+        "value": "94.2%"
+      },
+      {
+        "name": "Cache Hit Rate",
+        "value": "68.5%"
+      }
+    ],
+    "quickActions": [
+      {
+        "title": "Optimize Agent Costs",
+        "description": "Review provider usage and find cost savings",
+        "action": "review"
+      },
+      {
+        "title": "Scale Up Agents",
+        "description": "Add more parallel execution capacity",
+        "action": "scale"
+      },
+      {
+        "title": "Debug Failed Executions",
+        "description": "Investigate recent execution failures",
+        "action": "debug"
+      }
+    ]
+  },
+  "llmOps": {
+    "summary": {
+      "requests": 89250,
+      "tokens": 18750000,
+      "cost": 3180.75,
+      "successRate": 99.1,
+      "avgLatency": 210
+    },
+    "kpis": [
+      {
+        "label": "Total LLM Calls",
+        "value": "89.2K",
+        "delta": "+8.5%",
+        "trend": "up"
+      },
+      {
+        "label": "Success Rate",
+        "value": "99.1%",
+        "delta": "+0.3%",
+        "trend": "up"
+      },
+      {
+        "label": "Cost per 1K Tokens",
+        "value": "$0.0169",
+        "delta": "-0.001%",
+        "trend": "down"
+      },
+      {
+        "label": "Avg Response Time",
+        "value": "210ms",
+        "delta": "-15ms",
+        "trend": "down"
+      }
+    ],
+    "costTrend": [
+      {
+        "month": "Dec 2025",
+        "cost": 2450
+      },
+      {
+        "month": "Jan 2026",
+        "cost": 2890
+      },
+      {
+        "month": "Feb 2026",
+        "cost": 3050
+      },
+      {
+        "month": "Mar 2026",
+        "cost": 3180
+      }
+    ],
+    "providerUsage": [
+      {
+        "name": "OpenAI GPT-4 Turbo",
+        "requests": 44625,
+        "cost": 1590.38,
+        "latency": 200,
+        "share": 50
+      },
+      {
+        "name": "Claude Instant",
+        "requests": 26775,
+        "cost": 953.58,
+        "latency": 180,
+        "share": 30
+      },
+      {
+        "name": "Cohere Generate",
+        "requests": 13387,
+        "cost": 318.76,
+        "latency": 220,
+        "share": 15
+      },
+      {
+        "name": "AI21 Studio",
+        "requests": 4463,
+        "cost": 318.03,
+        "latency": 250,
+        "share": 5
+      }
+    ],
+    "recentExecutions": [
+      {
+        "id": "llm-001",
+        "name": "Text Generation",
+        "status": "completed",
+        "duration": "1.2s",
+        "cost": "$0.028"
+      },
+      {
+        "id": "llm-002",
+        "name": "Code Completion",
+        "status": "completed",
+        "duration": "0.9s",
+        "cost": "$0.015"
+      },
+      {
+        "id": "llm-003",
+        "name": "Summarization",
+        "status": "completed",
+        "duration": "2.1s",
+        "cost": "$0.062"
+      },
+      {
+        "id": "llm-004",
+        "name": "Translation",
+        "status": "in_progress",
+        "duration": "1.5s",
+        "cost": "$0.041"
+      },
+      {
+        "id": "llm-005",
+        "name": "Q&A Chain",
+        "status": "completed",
+        "duration": "3.2s",
+        "cost": "$0.085"
+      }
+    ],
+    "toolRegistry": [
+      {
+        "name": "completion",
+        "status": "healthy",
+        "latency": "150ms"
+      },
+      {
+        "name": "embedding",
+        "status": "healthy",
+        "latency": "100ms"
+      },
+      {
+        "name": "moderation",
+        "status": "healthy",
+        "latency": "80ms"
+      },
+      {
+        "name": "fine-tuning",
+        "status": "healthy",
+        "latency": "3000ms"
+      },
+      {
+        "name": "vision",
+        "status": "degraded",
+        "latency": "500ms"
+      }
+    ],
+    "guardrails": [
+      {
+        "name": "Prompt Injection Filter",
+        "value": 99.8,
+        "tone": "info"
+      },
+      {
+        "name": "Output Validation",
+        "value": 98.2,
+        "tone": "info"
+      },
+      {
+        "name": "Token Budget",
+        "value": 85.4,
+        "tone": "warning"
+      },
+      {
+        "name": "Rate Limiter",
+        "value": 96.1,
+        "tone": "info"
+      }
+    ],
+    "ragStats": [
+      {
+        "name": "Context Windows Used",
+        "value": "8.2K"
+      },
+      {
+        "name": "Avg Tokens per Request",
+        "value": "210"
+      },
+      {
+        "name": "Context Quality Score",
+        "value": "92.3%"
+      },
+      {
+        "name": "Prompt Cache Hit Rate",
+        "value": "45.8%"
+      }
+    ],
+    "quickActions": [
+      {
+        "title": "Fine-tune Model",
+        "description": "Create a custom fine-tuned model for your use case",
+        "action": "finetune"
+      },
+      {
+        "title": "Optimize Prompts",
+        "description": "Review and improve prompt templates for better results",
+        "action": "optimize"
+      },
+      {
+        "title": "Monitor Costs",
+        "description": "Check token usage and cost trends",
+        "action": "monitor"
+      }
+    ]
+  },
+  "tokenOps": {
+    "summaryCards": [
+      {
+        "label": "Total Tokens",
+        "value": "16.4M",
+        "delta": "+12%",
+        "icon": "Sparkles"
+      },
+      {
+        "label": "Prompt Tokens",
+        "value": "9.8M",
+        "delta": "+9%",
+        "icon": "Lightbulb"
+      },
+      {
+        "label": "Completion Tokens",
+        "value": "4.6M",
+        "delta": "+14%",
+        "icon": "Layers"
+      },
+      {
+        "label": "Cached Tokens",
+        "value": "1.2M",
+        "delta": "-3%",
+        "icon": "Database"
+      },
+      {
+        "label": "Embedding Tokens",
+        "value": "820K",
+        "delta": "+7%",
+        "icon": "Cpu"
+      },
+      {
+        "label": "Total Cost",
+        "value": ".2K",
+        "delta": "+8%",
+        "icon": "TrendingUp"
+      },
+      {
+        "label": "Avg Tokens / Request",
+        "value": "1.4K",
+        "delta": "-2%",
+        "icon": "Users"
+      },
+      {
+        "label": "Estimated Savings",
+        "value": ".1K",
+        "delta": "+22%",
+        "icon": "Sparkles"
+      }
+    ],
+    "usageTrend": [
+      {
+        "period": "Jan 1",
+        "prompt": 1400,
+        "completion": 620,
+        "total": 2020
+      },
+      {
+        "period": "Jan 2",
+        "prompt": 1620,
+        "completion": 740,
+        "total": 2360
+      },
+      {
+        "period": "Jan 3",
+        "prompt": 1510,
+        "completion": 680,
+        "total": 2190
+      },
+      {
+        "period": "Jan 4",
+        "prompt": 1790,
+        "completion": 810,
+        "total": 2600
+      },
+      {
+        "period": "Jan 5",
+        "prompt": 1680,
+        "completion": 760,
+        "total": 2440
+      },
+      {
+        "period": "Jan 6",
+        "prompt": 1860,
+        "completion": 910,
+        "total": 2770
+      },
+      {
+        "period": "Jan 7",
+        "prompt": 1720,
+        "completion": 840,
+        "total": 2560
+      }
+    ],
+    "distribution": [
+      {
+        "name": "Prompt",
+        "value": 59,
+        "tokens": 9800000,
+        "cost": 9200
+      },
+      {
+        "name": "Completion",
+        "value": 28,
+        "tokens": 4600000,
+        "cost": 4200
+      },
+      {
+        "name": "Embedding",
+        "value": 8,
+        "tokens": 820000,
+        "cost": 760
+      },
+      {
+        "name": "Cached",
+        "value": 4,
+        "tokens": 160000,
+        "cost": 80
+      },
+      {
+        "name": "Reasoning",
+        "value": 1,
+        "tokens": 82000,
+        "cost": 40
+      }
+    ],
+    "providerData": [
+      {
+        "provider": "OpenAI",
+        "requests": 82000,
+        "tokens": 9100000,
+        "cost": 10240,
+        "latency": 240,
+        "success": "99.2%",
+        "trend": "+8%"
+      },
+      {
+        "provider": "Anthropic",
+        "requests": 36000,
+        "tokens": 4200000,
+        "cost": 4440,
+        "latency": 310,
+        "success": "98.7%",
+        "trend": "+5%"
+      },
+      {
+        "provider": "Gemini",
+        "requests": 18000,
+        "tokens": 1620000,
+        "cost": 1680,
+        "latency": 280,
+        "success": "99.0%",
+        "trend": "+10%"
+      },
+      {
+        "provider": "Groq",
+        "requests": 9000,
+        "tokens": 860000,
+        "cost": 720,
+        "latency": 210,
+        "success": "98.9%",
+        "trend": "-2%"
+      },
+      {
+        "provider": "Azure OpenAI",
+        "requests": 7200,
+        "tokens": 640000,
+        "cost": 620,
+        "latency": 290,
+        "success": "99.1%",
+        "trend": "+3%"
+      }
+    ],
+    "modelComparison": [
+      {
+        "model": "gpt-4.1-mini",
+        "requests": 36000,
+        "prompt": 5200000,
+        "completion": 2600000,
+        "cost": 4200,
+        "latency": 280,
+        "quality": 91
+      },
+      {
+        "model": "gpt-4o",
+        "requests": 22000,
+        "prompt": 3200000,
+        "completion": 1480000,
+        "cost": 3740,
+        "latency": 310,
+        "quality": 88
+      },
+      {
+        "model": "claude-3.5",
+        "requests": 16000,
+        "prompt": 2340000,
+        "completion": 970000,
+        "cost": 2900,
+        "latency": 330,
+        "quality": 85
+      },
+      {
+        "model": "gemini-1.5",
+        "requests": 12000,
+        "prompt": 1740000,
+        "completion": 690000,
+        "cost": 2160,
+        "latency": 300,
+        "quality": 82
+      }
+    ],
+    "topConsumers": {
+      "users": [
+        {
+          "name": "Nina Patel",
+          "requests": 1820,
+          "tokens": 290000,
+          "cost": 310,
+          "active": "2h ago"
+        },
+        {
+          "name": "Team Orion",
+          "requests": 1560,
+          "tokens": 264000,
+          "cost": 280,
+          "active": "4h ago"
+        }
+      ],
+      "projects": [
+        {
+          "name": "AI Assist",
+          "requests": 3200,
+          "tokens": 520000,
+          "cost": 560,
+          "active": "1h ago"
+        },
+        {
+          "name": "RAG Search",
+          "requests": 2700,
+          "tokens": 430000,
+          "cost": 460,
+          "active": "3h ago"
+        }
+      ],
+      "agents": [
+        {
+          "name": "PromptRefiner",
+          "requests": 1180,
+          "tokens": 190000,
+          "cost": 210,
+          "active": "30m ago"
+        },
+        {
+          "name": "CacheWatcher",
+          "requests": 980,
+          "tokens": 170000,
+          "cost": 170,
+          "active": "5h ago"
+        }
+      ],
+      "apiKeys": [
+        {
+          "name": "key_live_abc123",
+          "requests": 830,
+          "tokens": 133000,
+          "cost": 140,
+          "active": "2h ago"
+        },
+        {
+          "name": "key_dev_xyz789",
+          "requests": 520,
+          "tokens": 88000,
+          "cost": 92,
+          "active": "6h ago"
+        }
+      ]
+    },
+    "promptAnalysis": [
+      {
+        "label": "Largest Prompt",
+        "value": "14.8K tokens"
+      },
+      {
+        "label": "Average Prompt Size",
+        "value": "2.3K tokens"
+      },
+      {
+        "label": "Longest Conversation",
+        "value": "38 turns"
+      },
+      {
+        "label": "Repeated Prompts",
+        "value": "17%"
+      },
+      {
+        "label": "Prompt Efficiency Score",
+        "value": "74/100"
+      }
+    ],
+    "contextStats": [
+      {
+        "label": "Current Context",
+        "value": "9.2K"
+      },
+      {
+        "label": "Maximum Context",
+        "value": "16K"
+      },
+      {
+        "label": "Remaining Context",
+        "value": "6.8K"
+      },
+      {
+        "label": "Usage %",
+        "value": "58%"
+      }
+    ],
+    "cacheStats": [
+      {
+        "label": "Cache Hit Rate",
+        "value": "72%"
+      },
+      {
+        "label": "Cache Miss",
+        "value": "28%"
+      },
+      {
+        "label": "Tokens Saved",
+        "value": "1.1M"
+      },
+      {
+        "label": "Money Saved",
+        "value": ""
+      }
+    ],
+    "recommendations": [
+      {
+        "title": "Reduce Prompt Length",
+        "savings": "42%",
+        "priority": "High"
+      },
+      {
+        "title": "Remove Duplicate Instructions",
+        "savings": "18%",
+        "priority": "Medium"
+      },
+      {
+        "title": "Use Cached Prompt",
+        "savings": "11%",
+        "priority": "Medium"
+      },
+      {
+        "title": "Switch Model: GPT-5 → GPT-4.1-mini",
+        "savings": "63%",
+        "priority": "High"
+      },
+      {
+        "title": "Compress RAG Context",
+        "savings": "35%",
+        "priority": "Medium"
+      },
+      {
+        "title": "Summarize Conversation",
+        "savings": "28%",
+        "priority": "Medium"
+      },
+      {
+        "title": "Reduce Output Tokens",
+        "savings": "16%",
+        "priority": "Low"
+      }
+    ],
+    "forecastData": [
+      {
+        "date": "Tomorrow",
+        "tokens": 241000,
+        "cost": 240
+      },
+      {
+        "date": "Next Week",
+        "tokens": 1640000,
+        "cost": 1620
+      },
+      {
+        "date": "Next Month",
+        "tokens": 7400000,
+        "cost": 7200
+      },
+      {
+        "date": "Quarter",
+        "tokens": 22800000,
+        "cost": 22200
+      }
+    ],
+    "anomalyCards": [
+      {
+        "title": "Abnormal Token Spike",
+        "severity": "Critical"
+      },
+      {
+        "title": "Large Prompt",
+        "severity": "High"
+      },
+      {
+        "title": "Infinite Loop",
+        "severity": "Medium"
+      },
+      {
+        "title": "Prompt Injection",
+        "severity": "High"
+      },
+      {
+        "title": "Repeated Requests",
+        "severity": "Low"
+      },
+      {
+        "title": "Cost Spike",
+        "severity": "Critical"
+      }
+    ],
+    "alerts": [
+      {
+        "rule": "Daily Tokens > 2 Million",
+        "channel": "Email"
+      },
+      {
+        "rule": "Monthly Cost > ",
+        "channel": "Slack"
+      },
+      {
+        "rule": "Context Usage > 90%",
+        "channel": "Webhook"
+      },
+      {
+        "rule": "Prompt > 15K Tokens",
+        "channel": "Teams"
+      },
+      {
+        "rule": "Cache Hit < 20%",
+        "channel": "Email"
+      }
+    ],
+    "costBreakdown": [
+      {
+        "category": "Provider",
+        "value": 41
+      },
+      {
+        "category": "Department",
+        "value": 23
+      },
+      {
+        "category": "Project",
+        "value": 17
+      },
+      {
+        "category": "User",
+        "value": 10
+      },
+      {
+        "category": "Agent",
+        "value": 9
+      },
+      {
+        "category": "Model",
+        "value": 12
+      }
+    ],
+    "ragAnalysis": [
+      {
+        "label": "Embedding Tokens",
+        "value": "820K"
+      },
+      {
+        "label": "Retrieved Chunks",
+        "value": "1.9K"
+      },
+      {
+        "label": "Average Chunk Size",
+        "value": "320 tokens"
+      },
+      {
+        "label": "Knowledge Hits",
+        "value": "88%"
+      },
+      {
+        "label": "Context Compression",
+        "value": "64%"
+      }
+    ],
+    "apiUsage": [
+      {
+        "key": "key_live_abc123",
+        "requests": 830,
+        "tokens": 133000,
+        "cost": 140,
+        "errors": 2,
+        "rateLimit": "95%",
+        "latency": 240
+      },
+      {
+        "key": "key_dev_xyz789",
+        "requests": 520,
+        "tokens": 88000,
+        "cost": 92,
+        "errors": 0,
+        "rateLimit": "100%",
+        "latency": 260
+      }
+    ]
+  },
+  "multiCloud": {
+    "summary": {
+      "totalSpend": 284750,
+      "awsSpend": 138500,
+      "gcpSpend": 89200,
+      "azureSpend": 57050,
+      "crossCloudEgress": 8420,
+      "momGrowth": 11.8
+    },
+    "trend": [
+      { "month": "Nov", "aws": 112000, "gcp": 72000, "azure": 48000 },
+      { "month": "Dec", "aws": 118000, "gcp": 76000, "azure": 51000 },
+      { "month": "Jan", "aws": 124000, "gcp": 81000, "azure": 52500 },
+      { "month": "Feb", "aws": 131000, "gcp": 84500, "azure": 54200 },
+      { "month": "Mar", "aws": 138500, "gcp": 89200, "azure": 57050 }
+    ],
+    "providers": {
+      "aws": {
+        "name": "Amazon Web Services",
+        "spend": 138500,
+        "change": "+12.4%",
+        "commitmentCoverage": 78,
+        "services": [
+          { "name": "Amazon EC2 (GPU & Compute)", "cost": 54200, "share": "39.1%" },
+          { "name": "Amazon EKS (Kubernetes)", "cost": 31400, "share": "22.7%" },
+          { "name": "Amazon Bedrock (GenAI APIs)", "cost": 22100, "share": "16.0%" },
+          { "name": "Amazon S3 (Data Lake & Embeddings)", "cost": 16800, "share": "12.1%" },
+          { "name": "Amazon RDS / Aurora", "cost": 14000, "share": "10.1%" }
+        ],
+        "topWorkloads": [
+          { "workload": "llama3-70b-inference-cluster", "region": "us-east-1", "cost": 32100, "status": "Optimized" },
+          { "workload": "agent-rag-vector-pipeline", "region": "us-west-2", "cost": 18400, "status": "Review Needed" },
+          { "workload": "finops-data-collector-eks", "region": "us-east-1", "cost": 12900, "status": "Healthy" }
+        ]
+      },
+      "gcp": {
+        "name": "Google Cloud Platform",
+        "spend": 89200,
+        "change": "+9.6%",
+        "commitmentCoverage": 84,
+        "services": [
+          { "name": "Google Kubernetes Engine (GKE)", "cost": 34800, "share": "39.0%" },
+          { "name": "Vertex AI (Gemini & Custom Models)", "cost": 24600, "share": "27.6%" },
+          { "name": "Compute Engine (TPU v5e Pods)", "cost": 15900, "share": "17.8%" },
+          { "name": "BigQuery (Analytics Warehouse)", "cost": 8700, "share": "9.8%" },
+          { "name": "Cloud Storage (GCS)", "cost": 5200, "share": "5.8%" }
+        ],
+        "topWorkloads": [
+          { "workload": "tpu-v5e-fine-tuning-slice", "region": "us-central1", "cost": 21500, "status": "Active" },
+          { "workload": "gke-production-ai-serving", "region": "us-east4", "cost": 29800, "status": "Healthy" },
+          { "workload": "bigquery-telemetry-dataset", "region": "us-multi", "cost": 6400, "status": "Optimized" }
+        ]
+      },
+      "azure": {
+        "name": "Microsoft Azure",
+        "spend": 57050,
+        "change": "+14.2%",
+        "commitmentCoverage": 71,
+        "services": [
+          { "name": "Azure OpenAI Service (GPT-4o)", "cost": 26800, "share": "47.0%" },
+          { "name": "Azure Kubernetes Service (AKS)", "cost": 14250, "share": "25.0%" },
+          { "name": "Azure Virtual Machines (NC-series)", "cost": 8900, "share": "15.6%" },
+          { "name": "Azure Blob Storage", "cost": 4300, "share": "7.5%" },
+          { "name": "Azure Cosmos DB", "cost": 2800, "share": "4.9%" }
+        ],
+        "topWorkloads": [
+          { "workload": "azure-openai-enterprise-rag", "region": "eastus2", "cost": 24100, "status": "High Spend" },
+          { "workload": "aks-internal-tooling", "region": "centralus", "cost": 11200, "status": "Optimized" },
+          { "workload": "cosmos-conversation-history", "region": "eastus", "cost": 2600, "status": "Healthy" }
+        ]
+      }
+    },
+    "crossCloudArbitrage": [
+      { "resource": "NVIDIA H100 SXM5 (80GB)", "aws": "$3.85 / hr", "gcp": "$3.62 / hr", "azure": "$3.90 / hr", "recommendation": "Migrate batch training to GCP TPU/H100" },
+      { "resource": "16 vCPU, 64GB RAM Node", "aws": "$0.68 / hr", "gcp": "$0.61 / hr", "azure": "$0.70 / hr", "recommendation": "Use GCP n2-standard-16 for ETL" },
+      { "resource": "Standard Object Storage (1TB/mo)", "aws": "$23.00", "gcp": "$20.00", "azure": "$20.80", "recommendation": "GCS standard tier offers highest multi-region SLA" },
+      { "resource": "Cross-Region Egress (per GB)", "aws": "$0.09", "gcp": "$0.08", "azure": "$0.087", "recommendation": "Co-locate vector DB with inference node" }
+    ]
+  },
+  "dockerAnalytics": {
+    "summary": {
+      "totalHosts": 18,
+      "runningContainers": 142,
+      "stoppedContainers": 28,
+      "zombieContainers": 9,
+      "danglingStorageGB": 384,
+      "monthlyContainerSpend": 18450,
+      "potentialMonthlySavings": 3920
+    },
+    "hostNodes": [
+      { "host": "prod-docker-worker-01", "ip": "10.0.4.12", "os": "Ubuntu 22.04 LTS", "containers": 18, "cpuUsage": 74, "memUsage": 82, "diskUsage": 68, "status": "Healthy" },
+      { "host": "prod-docker-worker-02", "ip": "10.0.4.13", "os": "Ubuntu 22.04 LTS", "containers": 16, "cpuUsage": 62, "memUsage": 71, "diskUsage": 59, "status": "Healthy" },
+      { "host": "ai-inference-sidecar-01", "ip": "10.0.8.20", "os": "Amazon Linux 2023", "containers": 8, "cpuUsage": 89, "memUsage": 91, "diskUsage": 84, "status": "High Load" },
+      { "host": "build-runner-daemon-01", "ip": "10.0.12.5", "os": "Debian 12", "containers": 12, "cpuUsage": 18, "memUsage": 32, "diskUsage": 94, "status": "Storage Alert" }
+    ],
+    "containers": [
+      { "name": "vllm-mistral-inference", "image": "vllm/vllm-openai:v0.6.2", "host": "ai-inference-sidecar-01", "status": "running", "cpu": "380%", "mem": "28.4 GB", "costPerHour": 1.42, "category": "AI Inference" },
+      { "name": "qdrant-vector-db-primary", "image": "qdrant/qdrant:v1.12.0", "host": "prod-docker-worker-01", "status": "running", "cpu": "120%", "mem": "14.2 GB", "costPerHour": 0.65, "category": "Vector DB" },
+      { "name": "redis-agent-cache-cluster", "image": "redis:7.2-alpine", "host": "prod-docker-worker-02", "status": "running", "cpu": "25%", "mem": "4.1 GB", "costPerHour": 0.18, "category": "Cache & Queues" },
+      { "name": "celery-token-aggregator", "image": "finops/worker:latest", "host": "prod-docker-worker-02", "status": "running", "cpu": "85%", "mem": "3.8 GB", "costPerHour": 0.22, "category": "Workers" },
+      { "name": "stale-langchain-eval-runner", "image": "evaluation/eval-harness:v2", "host": "build-runner-daemon-01", "status": "zombie", "cpu": "2%", "mem": "6.2 GB", "costPerHour": 0.35, "category": "Orphaned" },
+      { "name": "dev-sandbox-embedding-test", "image": "text-embeddings-inference:1.5", "host": "prod-docker-worker-01", "status": "exited", "cpu": "0%", "mem": "0 GB", "costPerHour": 0.00, "category": "Stopped" }
+    ],
+    "storageWaste": [
+      { "item": "Dangling image layers (<none>:<none>)", "count": 142, "sizeGB": 194.5, "costPerMonth": 48.60, "action": "docker image prune -a" },
+      { "item": "Orphaned persistent volumes", "count": 19, "sizeGB": 112.0, "costPerMonth": 33.60, "action": "docker volume prune" },
+      { "item": "BuildKit cache cache-mount blobs", "count": 64, "sizeGB": 77.5, "costPerMonth": 23.25, "action": "docker builder prune" }
+    ]
+  },
+  "hardwareOrchestration": {
+    "summary": {
+      "totalAccelerators": 64,
+      "activeCount": 56,
+      "idleCount": 8,
+      "totalHourlyBurn": 128.40,
+      "avgComputeUtilization": 76.8,
+      "monthlyHardwareSpend": 92448,
+      "potentialMonthlySavings": 18200
+    },
+    "accelerators": {
+      "gpu": {
+        "overview": {
+          "count": 36,
+          "avgUtilization": 81.4,
+          "totalVRAM_GB": 2880,
+          "allocatedVRAM_GB": 2360,
+          "hourlyCost": 88.50
+        },
+        "devices": [
+          { "id": "gpu-h100-node-01-a", "type": "NVIDIA H100 SXM5 80GB", "cluster": "us-east-ai-training", "smUtil": 92, "vramAllocatedGB": 78, "vramTotalGB": 80, "tempC": 67, "powerW": 640, "costPerHour": 3.85, "status": "Saturated", "model": "Llama-3.3-70B-FP8" },
+          { "id": "gpu-h100-node-01-b", "type": "NVIDIA H100 SXM5 80GB", "cluster": "us-east-ai-training", "smUtil": 94, "vramAllocatedGB": 78, "vramTotalGB": 80, "tempC": 69, "powerW": 655, "costPerHour": 3.85, "status": "Saturated", "model": "Llama-3.3-70B-FP8" },
+          { "id": "gpu-a100-inference-02", "type": "NVIDIA A100 SXM4 80GB", "cluster": "us-central-serving", "smUtil": 58, "vramAllocatedGB": 44, "vramTotalGB": 80, "tempC": 58, "powerW": 310, "costPerHour": 2.65, "status": "Healthy", "model": "Mistral-Large-Instruct" },
+          { "id": "gpu-l40s-rag-embed-01", "type": "NVIDIA L40S 48GB", "cluster": "eu-west-embeddings", "smUtil": 38, "vramAllocatedGB": 18, "vramTotalGB": 48, "tempC": 48, "powerW": 180, "costPerHour": 1.45, "status": "Underutilized", "model": "BGE-Large-En-v1.5" },
+          { "id": "gpu-a100-standby-03", "type": "NVIDIA A100 SXM4 80GB", "cluster": "us-central-serving", "smUtil": 4, "vramAllocatedGB": 12, "vramTotalGB": 80, "tempC": 36, "powerW": 95, "costPerHour": 2.65, "status": "Idle / Zombie", "model": "None (Warm Pool)" }
+        ]
+      },
+      "mpu": {
+        "overview": {
+          "count": 16,
+          "avgUtilization": 74.2,
+          "podSlices": 4,
+          "hourlyCost": 28.80
+        },
+        "devices": [
+          { "id": "tpu-v5e-slice-16a", "type": "Google Cloud TPU v5e (16 chips)", "region": "us-central1-a", "mxuDutyCycle": 82, "hbmThroughputGBs": 680, "costPerHour": 19.20, "status": "Training Active", "workload": "Multimodal-Embedding-Distillation" },
+          { "id": "tpu-v4-pod-slice-8", "type": "Google Cloud TPU v4 (8 chips)", "region": "us-central2-b", "mxuDutyCycle": 66, "hbmThroughputGBs": 510, "costPerHour": 9.60, "status": "Fine-Tuning", "workload": "Domain-RAG-Adapter-LoRA" }
+        ]
+      },
+      "cpu": {
+        "overview": {
+          "totalCores": 512,
+          "avgUtilization": 68.5,
+          "architectureBreakdown": "65% ARM Graviton4 / 35% AMD EPYC",
+          "hourlyCost": 7.40
+        },
+        "devices": [
+          { "id": "arm-graviton4-pool-01", "type": "AWS c7g.8xlarge (ARM Neoverse V2)", "cores": 32, "utilization": 78, "memoryGB": 64, "costPerHour": 1.16, "status": "High Efficiency", "role": "Vector Tokenization & ETL" },
+          { "id": "epyc-genoa-pool-02", "type": "AMD EPYC 9654 (x86_64)", "cores": 64, "utilization": 59, "memoryGB": 256, "costPerHour": 2.45, "status": "Healthy", "role": "Inference Gateway & Routing" }
+        ]
+      },
+      "lpu": {
+        "overview": {
+          "count": 12,
+          "avgTokensPerSec": 560,
+          "sramBandwidthTBps": 80,
+          "hourlyCost": 3.70
+        },
+        "devices": [
+          { "id": "groq-lpu-node-alpha", "type": "Groq LPU Inference Rack", "targetModel": "Llama-3.1-8B-Instant", "throughputTokSec": 620, "latencyFirstTokenMs": 95, "costPerMillionTokens": 0.08, "status": "Ultra-Fast" },
+          { "id": "groq-lpu-node-beta", "type": "Groq LPU Inference Rack", "targetModel": "Mixtral-8x7B-32k", "throughputTokSec": 480, "latencyFirstTokenMs": 130, "costPerMillionTokens": 0.24, "status": "Ultra-Fast" }
+        ]
+      }
+    },
+    "recommendations": [
+      { "type": "GPU Idle Shutdown", "severity": "High", "impact": "$1,908 / mo", "description": "gpu-a100-standby-03 has had < 5% SM utilization for 72 hours. Auto-hibernate or return to spot pool." },
+      { "type": "LPU Routing Arbitrage", "severity": "Medium", "impact": "$2,850 / mo", "description": "Route low-complexity agent classification steps from H100 to Groq LPU (4x lower latency, 65% cheaper)." },
+      { "type": "ARM CPU Migration", "severity": "Low", "impact": "$980 / mo", "description": "Migrate remaining x86 tokenizers to AWS Graviton4 for 22% better price-performance." }
+    ]
+  }
+}

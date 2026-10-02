@@ -1,0 +1,229 @@
+{
+  "total_apis_required": 78,
+  "modules": {
+    "1_authentication_authorization": {
+      "count": 6,
+      "endpoints": [
+        "POST /api/auth/login",
+        "POST /api/auth/logout",
+        "POST /api/auth/refresh-token",
+        "POST /api/auth/register",
+        "POST /api/auth/verify-email",
+        "POST /api/auth/reset-password"
+      ]
+    },
+    "2_dashboard": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/dashboard/summary",
+        "GET /api/dashboard/spend-trend",
+        "GET /api/dashboard/cost-by-category",
+        "GET /api/dashboard/top-services",
+        "GET /api/dashboard/recommendations-widget",
+        "GET /api/dashboard/anomalies-widget",
+        "GET /api/dashboard/reports-widget",
+        "POST /api/dashboard/refresh"
+      ]
+    },
+    "3_cost_analyzer": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/cost-analyzer/services",
+        "GET /api/cost-analyzer/services/filter",
+        "GET /api/cost-analyzer/services/{service_id}",
+        "GET /api/cost-analyzer/cost-by-provider",
+        "GET /api/cost-analyzer/cost-by-category",
+        "GET /api/cost-analyzer/usage-metrics",
+        "GET /api/cost-analyzer/services/export",
+        "GET /api/cost-analyzer/provider-comparison"
+      ]
+    },
+    "4_categories": {
+      "count": 6,
+      "endpoints": [
+        "GET /api/categories",
+        "GET /api/categories/{category_id}",
+        "GET /api/categories/{category_id}/trend",
+        "GET /api/categories/{category_id}/services",
+        "GET /api/categories/{category_id}/mom-change",
+        "GET /api/categories/{category_id}/export"
+      ]
+    },
+    "5_kubernetes": {
+      "count": 12,
+      "endpoints": [
+        "GET /api/kubernetes/clusters",
+        "GET /api/kubernetes/clusters/{cluster_id}",
+        "GET /api/kubernetes/clusters/{cluster_id}/cost-breakdown",
+        "GET /api/kubernetes/namespaces",
+        "GET /api/kubernetes/namespaces/{namespace_id}",
+        "GET /api/kubernetes/resource-waste",
+        "GET /api/kubernetes/clusters/{cluster_id}/efficiency",
+        "GET /api/kubernetes/pods",
+        "GET /api/kubernetes/namespaces/{namespace_id}/trend",
+        "GET /api/kubernetes/clusters/{cluster_id}/nodes",
+        "GET /api/kubernetes/clusters/{cluster_id}/export",
+        "GET /api/kubernetes/right-sizing"
+      ]
+    },
+    "6_recommendations": {
+      "count": 9,
+      "endpoints": [
+        "GET /api/recommendations",
+        "GET /api/recommendations/{recommendation_id}",
+        "GET /api/recommendations/filter",
+        "GET /api/recommendations/category/{category}",
+        "PUT /api/recommendations/{recommendation_id}/status",
+        "POST /api/recommendations/{recommendation_id}/apply",
+        "GET /api/recommendations/{recommendation_id}/impact",
+        "POST /api/recommendations/{recommendation_id}/dismiss",
+        "GET /api/recommendations/savings-summary"
+      ]
+    },
+    "7_anomalies": {
+      "count": 10,
+      "endpoints": [
+        "GET /api/anomalies",
+        "GET /api/anomalies/{anomaly_id}",
+        "GET /api/anomalies/filter",
+        "GET /api/anomalies/severity",
+        "PUT /api/anomalies/{anomaly_id}/acknowledge",
+        "PUT /api/anomalies/{anomaly_id}/resolve",
+        "GET /api/anomalies/{anomaly_id}/investigate",
+        "GET /api/anomalies/timeline",
+        "GET /api/anomalies/statistics",
+        "GET /api/anomalies/alerts-summary"
+      ]
+    },
+    "8_reports": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/reports",
+        "GET /api/reports/{report_id}",
+        "POST /api/reports/create",
+        "PUT /api/reports/{report_id}/update",
+        "DELETE /api/reports/{report_id}",
+        "POST /api/reports/{report_id}/generate",
+        "GET /api/reports/{report_id}/download",
+        "GET /api/reports/schedules"
+      ]
+    },
+    "9_virtual_tags": {
+      "count": 7,
+      "endpoints": [
+        "GET /api/virtual-tags",
+        "GET /api/virtual-tags/coverage",
+        "POST /api/virtual-tags/rules/create",
+        "PUT /api/virtual-tags/rules/{rule_id}/update",
+        "DELETE /api/virtual-tags/rules/{rule_id}",
+        "GET /api/virtual-tags/mappings",
+        "POST /api/virtual-tags/mappings/create"
+      ]
+    },
+    "10_cost_allocation": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/cost-allocation/teams",
+        "GET /api/cost-allocation/teams/{team_id}",
+        "GET /api/cost-allocation/teams/{team_id}/breakdown",
+        "POST /api/cost-allocation/rules/create",
+        "PUT /api/cost-allocation/rules/{rule_id}/update",
+        "GET /api/cost-allocation/treemap",
+        "GET /api/cost-allocation/chargeback",
+        "GET /api/cost-allocation/variance-analysis"
+      ]
+    },
+    "11_unit_economics": {
+      "count": 6,
+      "endpoints": [
+        "GET /api/unit-economics/summary",
+        "GET /api/unit-economics/cost-per-user",
+        "GET /api/unit-economics/cost-per-transaction",
+        "GET /api/unit-economics/gross-margin",
+        "GET /api/unit-economics/benchmark",
+        "GET /api/unit-economics/trends"
+      ]
+    },
+    "12_forecasting": {
+      "count": 7,
+      "endpoints": [
+        "GET /api/forecasting/forecast",
+        "GET /api/forecasting/forecast/{scenario}",
+        "POST /api/forecasting/what-if",
+        "GET /api/forecasting/drivers",
+        "PUT /api/forecasting/drivers/{driver_id}/update",
+        "GET /api/forecasting/accuracy",
+        "GET /api/forecasting/historical-accuracy"
+      ]
+    },
+    "13_budgeting": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/budgets",
+        "GET /api/budgets/{budget_id}",
+        "POST /api/budgets/create",
+        "PUT /api/budgets/{budget_id}/update",
+        "DELETE /api/budgets/{budget_id}",
+        "GET /api/budgets/status",
+        "GET /api/budgets/daily-burn-rate",
+        "POST /api/budgets/{budget_id}/alerts"
+      ]
+    },
+    "14_payment_receipts": {
+      "count": 6,
+      "endpoints": [
+        "GET /api/payment-receipts",
+        "GET /api/payment-receipts/{receipt_id}",
+        "GET /api/payment-receipts/vendor/{vendor}",
+        "GET /api/payment-receipts/{receipt_id}/download",
+        "POST /api/payment-receipts/upload",
+        "GET /api/payment-receipts/summary"
+      ]
+    },
+    "15_tenant_management": {
+      "count": 6,
+      "endpoints": [
+        "GET /api/tenants",
+        "GET /api/tenants/{tenant_id}",
+        "POST /api/tenants/create",
+        "PUT /api/tenants/{tenant_id}/update",
+        "DELETE /api/tenants/{tenant_id}",
+        "GET /api/tenants/{tenant_id}/users"
+      ]
+    },
+    "16_user_management": {
+      "count": 8,
+      "endpoints": [
+        "GET /api/users",
+        "GET /api/users/{user_id}",
+        "POST /api/users/create",
+        "PUT /api/users/{user_id}/update",
+        "DELETE /api/users/{user_id}",
+        "PUT /api/users/{user_id}/role",
+        "POST /api/users/{user_id}/change-password",
+        "GET /api/users/{user_id}/activity"
+      ]
+    }
+  },
+  "summary": {
+    "total_apis": 78,
+    "read_operations_get": 64,
+    "write_operations_post_put_delete": 14,
+    "authentication": "JWT Bearer Token",
+    "response_format": "JSON",
+    "database": ["PostgreSQL", "Vector DB (Chroma/FAISS/pgvector)"],
+    "framework": "FastAPI (Python)",
+    "key_features": [
+      "Multi-tenant architecture",
+      "Role-based access control (RBAC)",
+      "Real-time cost data aggregation",
+      "AI-powered anomaly detection",
+      "Kubernetes cost optimization",
+      "Cost forecasting with what-if analysis",
+      "Budget management and alerts",
+      "Tag mapping and normalization",
+      "Cost allocation by teams/departments",
+      "Savings recommendations"
+    ]
+  }
+}

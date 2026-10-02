@@ -1,0 +1,22 @@
+[Unit]
+Description=FinOPS FastAPI Backend Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+# User can be ubuntu, ec2-user, or your deployment user
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/FinOPS/API
+EnvironmentFile=/home/ubuntu/FinOPS/API/.env
+ExecStart=/home/ubuntu/FinOPS/API/.venv/bin/gunicorn -w 2 -k uvicorn.workers.UvicornWorker app.main:app --bind 127.0.0.1:8000 --timeout 120 --graceful-timeout 30
+
+Restart=always
+RestartSec=5s
+
+# Resource limits suited for 2 vCPU / 4 GB RAM EC2 instance
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
