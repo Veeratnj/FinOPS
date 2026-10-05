@@ -1,4 +1,4 @@
-﻿"""
+"""
 Test account creation helper for Ctrls-API.
 
 This script creates:
@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 from app.core.config import settings
 from app.db.session import SessionLocal, engine
-from app.models.all_models import Base
+from app.models import Base
 from app.services.tenant_service import TenantService
 from app.services.auth_service import AuthService
 from app import schemas

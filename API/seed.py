@@ -8,7 +8,7 @@ import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import uuid
 
@@ -19,7 +19,7 @@ load_dotenv()
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.db.session import SessionLocal, engine
-from app.models.all_models import (
+from app.models import (
     Base,
     Tenant,
     User,
@@ -275,8 +275,8 @@ def seed_database() -> None:
                 status=JobStatus.COMPLETED,
                 prompt_tokens=850000,
                 completion_tokens=600000,
-                started_at=datetime.utcnow() - timedelta(hours=3),
-                finished_at=datetime.utcnow() - timedelta(hours=2),
+                started_at=datetime.now(timezone.utc) - timedelta(hours=3),
+                finished_at=datetime.now(timezone.utc) - timedelta(hours=2),
                 tags={"environment": "production"},
                 metadata_={"total_cost_usd": 14.85},
             )

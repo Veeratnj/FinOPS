@@ -16,6 +16,8 @@ const currentPrompt = `Write a detailed marketing plan for a new AI platform. In
 
 const colors = ["#16a34a", "#0ea5e9", "#f97316", "#8b5cf6", "#ec4899", "#facc15"];
 
+const iconMap: Record<string, React.ComponentType<{ size?: number }>> = { Cpu, Database, Layers, Lightbulb, Sparkles, TrendingUp, Users };
+
 function tokenFormatter(value: number) {
   return value.toLocaleString();
 }
@@ -104,7 +106,7 @@ export default function TokenOPS() {
                 <p className="mt-2 text-2xl font-semibold">{card.value}</p>
               </div>
               <div className="rounded-xl bg-primary/10 p-3 text-primary">
-                <card.icon size={18} />
+                {(() => { const Icon = iconMap[card.icon as string] ?? Sparkles; return <Icon size={18} />; })()}
               </div>
             </CardHeader>
             <CardContent>

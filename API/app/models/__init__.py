@@ -1,4 +1,4 @@
-from .models import *  # noqa: F403
+from .all_models import *  # noqa: F403
 
 __all__ = [
     "Base",

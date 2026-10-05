@@ -107,6 +107,10 @@ export default function LLMOps() {
 
           const json = (await response.json()) as LLMOpsPayload;
 
+          if (!json?.summary) {
+            throw new Error("Invalid LLM Ops payload");
+          }
+
           if (mounted) {
             setData(json);
             setError(null);

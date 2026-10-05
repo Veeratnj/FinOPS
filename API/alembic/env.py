@@ -18,7 +18,7 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from app.models.all_models import Base
+from app.models import Base
 from app.core.config import settings
 
 config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)

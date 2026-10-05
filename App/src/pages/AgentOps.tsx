@@ -107,6 +107,10 @@ export default function AgentOps() {
 
           const json = (await response.json()) as AgentOpsPayload;
 
+          if (!json?.summary) {
+            throw new Error("Invalid Agent Ops payload");
+          }
+
           if (mounted) {
             setData(json);
             setError(null);

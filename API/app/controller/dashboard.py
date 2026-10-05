@@ -20,9 +20,11 @@ def _load_metrics_data() -> dict[str, Any]:
         return _metrics_cache
 
     # Try to find data file in the public directory
+    repo_root = Path(__file__).resolve().parents[3]
     possible_paths = [
+        repo_root / "App" / "public" / "fakedata.json",
+        repo_root / "Ctrls-BUI" / "public" / "fakedata.json",
         Path(__file__).parent.parent.parent / "Ctrls-BUI" / "public" / "fakedata.json",
-        Path(__file__).parent.parent.parent.parent / "Ctrls-BUI" / "public" / "fakedata.json",
     ]
 
     for path in possible_paths:
