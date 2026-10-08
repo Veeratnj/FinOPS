@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -36,7 +36,7 @@ import Budgeting from "@/pages/Budgeting";
 import PaymentReceipts from "@/pages/PaymentReceipts";
 import NotFound from "@/pages/NotFound";
 
-import NeonDashboard from "@/pages/NeonDashboard";
+
 import UserDashboard from "@/pages/UserDashboard";
 import PlansBilling from "./pages/PlansBilling";
 import { SubscriptionProvider } from "@/context/SubscriptionContext";
@@ -72,15 +72,8 @@ const App = () => (
                   <Route path="/verify-email" element={<EmailVerification />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
 
-                  {/* 🔥 Neon Dashboard (FULL PAGE, no Layout) */}
-                  <Route
-                    path="/neon"
-                    element={
-                      <ProtectedRoute>
-                        <NeonDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
+                  {/* Redirect /neon to main dashboard */}
+                  <Route path="/neon" element={<Navigate to="/dashboard" replace />} />
                   <Route
   path="/user-dashboard"
   element={

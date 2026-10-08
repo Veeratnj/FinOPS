@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   verifyEmail,
   verifyLoginOtp,
@@ -68,7 +68,7 @@ localStorage.removeItem(
 alert("Login successful");
 
 
-window.location.href = "/neon";
+window.location.href = "/dashboard";
 
       return;
     }
@@ -82,10 +82,9 @@ window.location.href = "/neon";
       verification_code: code,
     });
 
-    alert("Email verified successfully");
+    alert("Email verified successfully. Please sign in to continue.");
 
-    
-window.location.href = "/neon";
+    navigate("/login");
 
   } catch (error: any) {
 
@@ -199,7 +198,7 @@ window.location.href = "/neon";
           </button>
         </form>
 
-        {/* RESEND */}
+        {/* RESEND & BACK TO LOGIN */}
         <p className="text-center text-sm mt-6 text-gray-400">
           Didn’t receive the email?
 
@@ -209,6 +208,12 @@ window.location.href = "/neon";
           >
             Click to resend
           </span>
+        </p>
+
+        <p className="text-center text-sm mt-4 text-gray-400">
+          <Link to="/login" className="text-[#77B900] hover:underline">
+            ← Back to Sign In
+          </Link>
         </p>
       </div>
     </div>

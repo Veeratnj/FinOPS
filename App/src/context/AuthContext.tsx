@@ -16,7 +16,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "admin" | "manager" | "analyst" | "viewer";
+  role: "admin" | "manager" | "analyst" | "viewer" | "owner";
+  tenant_id?: string;
   avatar?: string;
   department?: string;
   createdAt?: string;
@@ -94,6 +95,9 @@ export const AuthProvider: React.FC<{
           "Failed to parse stored user:",
           error
         );
+        localStorage.removeItem("user");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
       }
     }
 
@@ -113,61 +117,65 @@ export const AuthProvider: React.FC<{
     setIsLoading(true);
 
     try {
-
       const response = await loginUser({
+        email,
+        password,
+        username,
+      });
 
-  email,
-  password,
-  username,
+      /* =========================
+         2FA REQUIRED (if present)
+      ========================= */
+      if (response.requires_2fa) {
+        return response;
+      }
 
-});
+      /* =========================
+         NORMAL LOGIN
+      ========================= */
+      const rawUser = response.user || ({} as any);
+      const computedName =
+        rawUser.username ||
+        rawUser.name ||
+        (rawUser.email ? rawUser.email.split("@")[0] : "") ||
+        "User";
 
-/* =========================
-   2FA REQUIRED
-========================= */
+      const loggedInUser: User = {
+        id: rawUser.id || "",
+        email: rawUser.email || email,
+        name: computedName,
+        role: (rawUser.role || "viewer") as User["role"],
+        tenant_id: rawUser.tenant_id,
+        department: rawUser.department,
+      };
 
-if (response.requires_2fa) {
+      /* SAVE TOKENS */
+      if (response.access_token) {
+        localStorage.setItem(
+          "access_token",
+          response.access_token
+        );
+      }
 
-  return response;
-
-}
-
-/* =========================
-   NORMAL LOGIN
-========================= */
-
-const loggedInUser: User = {
-
-  id: response.user.id,
-  email: response.user.email,
-  name: response.user.username,
-  role:
-    response.user.role as User["role"],
-
-};
-
-      /* SAVE TOKEN */
-
-      localStorage.setItem(
-        "access_token",
-        response.access_token
-      );
+      if (response.refresh_token) {
+        localStorage.setItem(
+          "refresh_token",
+          response.refresh_token
+        );
+      }
 
       /* SAVE USER */
-
       localStorage.setItem(
         "user",
         JSON.stringify(loggedInUser)
       );
 
       /* UPDATE STATE */
-
       setUser(loggedInUser);
       return response;
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
-
     } finally {
       setIsLoading(false);
     }
@@ -197,23 +205,7 @@ const loggedInUser: User = {
       company_name: companyName,
     });
 
-    const newUser: User = {
-      id: response.id,
-      email: response.email,
-      name: response.username,
-      role: response.role as User["role"],
-    };
-
-    /* SAVE USER */
-
-    localStorage.setItem(
-      "user",
-      JSON.stringify(newUser)
-    );
-
-    /* UPDATE STATE */
-
-    setUser(newUser);
+    // Note: Do not set active user session until email is verified and tokens are received via login
 
   } catch (error) {
 
@@ -235,10 +227,10 @@ const loggedInUser: User = {
     setUser(null);
 
     localStorage.removeItem("user");
-
-    localStorage.removeItem(
-      "access_token"
-    );
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    localStorage.removeItem("verification_email");
+    localStorage.removeItem("login_2fa");
   };
 
   /* =========================

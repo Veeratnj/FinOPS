@@ -1,13 +1,15 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { LogOut } from "lucide-react";
 
 import Individual from "./Individual";
 import Startup from "./Startup";
 
 const NeonDashboard = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [profile, setProfile] = useState("individual");
 
@@ -183,6 +185,29 @@ const NeonDashboard = () => {
                 ? "Individual"
                 : "Startup"}
             </div>
+
+            {/* SIGN OUT BUTTON */}
+            <button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="
+                mt-3
+                w-full
+                flex items-center justify-center gap-1.5
+                py-1.5 px-3
+                rounded-md
+                border border-[#77B900]/30
+                text-[#77B900]
+                hover:bg-[#77B900]/10
+                text-xs font-medium
+                transition
+              "
+            >
+              <LogOut size={13} />
+              Sign Out
+            </button>
 
           </div>
 

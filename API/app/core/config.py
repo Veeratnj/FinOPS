@@ -51,9 +51,9 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:
             return self.DATABASE_URL
-        from urllib.parse import quote_plus
-        user = quote_plus(self.POSTGRES_USER or "")
-        password = quote_plus(self.POSTGRES_PASSWORD or "")
+        from urllib.parse import quote_plus, unquote
+        user = quote_plus(unquote(self.POSTGRES_USER or ""))
+        password = quote_plus(unquote(self.POSTGRES_PASSWORD or ""))
         return (
             f"postgresql://{user}:{password}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

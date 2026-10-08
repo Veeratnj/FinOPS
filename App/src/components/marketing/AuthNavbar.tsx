@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const AuthNavbar = () => {
   return (
     <nav
@@ -162,24 +164,41 @@ const AuthNavbar = () => {
 
         </div>
 
-        {/* RIGHT BUTTON */}
-        <a
-          href="https://seynova.ai/"
-          className="
-            px-5 py-3
-            rounded-[14px]
-            bg-[#77B900]
-            text-black
-            font-semibold
-            transition-all
-            duration-300
-            hover:bg-[#8ED000]
-            hover:shadow-[0_0_25px_rgba(119,185,0,0.45)]
-            hover:scale-[1.02]
-          "
-        >
-          Get Started
-        </a>
+        {/* RIGHT BUTTONS */}
+        <div className="flex items-center gap-3">
+          <Link
+            to="/login"
+            className="
+              px-4 py-2.5
+              rounded-[14px]
+              border border-[#77B900]/40
+              text-[#77B900]
+              hover:bg-[#77B900]/10
+              text-sm font-semibold
+              transition-all
+            "
+          >
+            Sign In
+          </Link>
+          <a
+            href="https://seynova.ai/"
+            className="
+              px-5 py-2.5
+              rounded-[14px]
+              bg-[#77B900]
+              text-black
+              font-semibold
+              transition-all
+              duration-300
+              hover:bg-[#8ED000]
+              hover:shadow-[0_0_25px_rgba(119,185,0,0.45)]
+              hover:scale-[1.02]
+              text-sm
+            "
+          >
+            Get Started
+          </a>
+        </div>
 
       </div>
 
