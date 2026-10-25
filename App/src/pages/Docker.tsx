@@ -18,6 +18,8 @@ import { formatCurrency } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { PageSkeleton } from "@/components/ui/Skeletons";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
+
 export default function Docker() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -26,11 +28,19 @@ export default function Docker() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch("/fakedata.json");
+        const token = localStorage.getItem("access_token");
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        let res = await fetch(`${API_BASE_URL}/api/docker`, { headers });
+        if (!res.ok) {
+          res = await fetch(`${API_BASE_URL}/docker`, { headers });
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json = await res.json();
-        setData(json.dockerAnalytics);
+        setData(json);
       } catch (e) {
-        console.error("Failed to load Docker data", e);
+        console.error("Failed to load Docker data from API", e);
       } finally {
         setLoading(false);
       }

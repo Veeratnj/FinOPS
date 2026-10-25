@@ -5,7 +5,14 @@ Security utilities for JWT tokens and password hashing.
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional, Union
 
-from jose import jwt
+try:
+    from jose import jwt
+    JWTError = getattr(jwt, "JWTError", Exception)
+except ImportError:
+    import jwt
+    JWTError = getattr(jwt, "PyJWTError", Exception)
+    setattr(jwt, "JWTError", JWTError)
+
 from app.core.config import settings
 import bcrypt
 
@@ -74,9 +81,9 @@ def verify_token(token: str) -> Dict[str, Any]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         return payload
-    except jwt.ExpiredSignatureError:
-        raise ValueError("Token has expired")
-    except jwt.JWTError:
+    except Exception as exc:
+        if "expired" in str(exc).lower():
+            raise ValueError("Token has expired")
         raise ValueError("Invalid token")
 
 

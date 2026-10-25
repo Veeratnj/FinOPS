@@ -16,11 +16,13 @@ const currentPrompt = `Write a detailed marketing plan for a new AI platform. In
 
 const colors = ["#16a34a", "#0ea5e9", "#f97316", "#8b5cf6", "#ec4899", "#facc15"];
 
-const iconMap: Record<string, React.ComponentType<{ size?: number }>> = { Cpu, Database, Layers, Lightbulb, Sparkles, TrendingUp, Users };
+const iconMap: Record<string, React.ComponentType<any>> = { Cpu, Database, Layers, Lightbulb, Sparkles, TrendingUp, Users };
 
 function tokenFormatter(value: number) {
   return value.toLocaleString();
 }
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 export default function TokenOPS() {
   const [data, setData] = useState<any>(null);
@@ -30,11 +32,19 @@ export default function TokenOPS() {
   useEffect(() => {
     async function loadData() {
       try {
-        const response = await fetch('/fakedata.json');
-        const allData = await response.json();
-        setData(allData.tokenOps);
+        const token = localStorage.getItem("access_token");
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        let res = await fetch(`${API_BASE_URL}/api/token-ops`, { headers });
+        if (!res.ok) {
+          res = await fetch(`${API_BASE_URL}/token-ops`, { headers });
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const allData = await res.json();
+        setData(allData);
       } catch (err) {
-        setError('Failed to load TokenOPS data.');
+        setError('Failed to load TokenOPS data from API.');
       } finally {
         setLoading(false);
       }
@@ -49,16 +59,17 @@ export default function TokenOPS() {
 
   const tabData = useMemo(() => {
     if (!data) return [];
+    const consumers = data.topConsumers || {};
     const map = {
-      users: data.topConsumers.users,
-      projects: data.topConsumers.projects,
-      agents: data.topConsumers.agents,
-      apiKeys: data.topConsumers.apiKeys,
+      users: consumers.users || [],
+      projects: consumers.projects || [],
+      agents: consumers.agents || [],
+      apiKeys: consumers.apiKeys || [],
     } as const;
     return map[activeTab as keyof typeof map] || [];
   }, [activeTab, data]);
 
-  const filteredTabData = tabData.filter((item: any) => item.name.toLowerCase().includes(search.toLowerCase()));
+  const filteredTabData = tabData.filter((item: any) => (item?.name || "").toLowerCase().includes(search.toLowerCase()));
 
   if (loading) {
     return <div className="flex items-center justify-center h-full">Loading Token Analytics...</div>;
@@ -68,10 +79,23 @@ export default function TokenOPS() {
   }
 
   const {
-    summaryCards, usageTrend, distribution, providerData, modelComparison,
-    promptAnalysis, contextStats, cacheStats, recommendations,
-    forecastData, anomalyCards, alerts, costBreakdown, ragAnalysis, apiUsage
-  } = data;
+    summaryCards = [],
+    usageTrend = [],
+    distribution = [],
+    providerData = [],
+    modelComparison = [],
+    promptAnalysis = [],
+    contextStats = [],
+    cacheStats = [],
+    recommendations = [],
+    forecastData = [],
+    anomalyCards = [],
+    alerts = [],
+    costBreakdown = [],
+    ragAnalysis = [],
+    apiUsage = []
+  } = data || {};
+
 
 
   return (

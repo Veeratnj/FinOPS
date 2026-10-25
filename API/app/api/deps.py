@@ -6,7 +6,6 @@ from typing import Generator
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
@@ -66,3 +65,25 @@ def get_db_with_tenant(db: Session = Depends(get_db)) -> Session:
     """Get database session with tenant isolation."""
     # This would need to be implemented based on tenant middleware
     return db
+
+
+reusable_oauth2_optional = OAuth2PasswordBearer(
+    tokenUrl="/auth/login",
+    auto_error=False,
+)
+
+
+def get_current_user_optional(
+    db: Session = Depends(get_db), token: str | None = Depends(reusable_oauth2_optional)
+) -> schemas.User | None:
+    """Get current user if token is present, else None."""
+    if not token:
+        return None
+    try:
+        payload = security.verify_token(token)
+        user_id = payload.get("sub")
+        if user_id:
+            return user_repo.get(db, id=user_id)
+    except Exception:
+        return None
+    return None

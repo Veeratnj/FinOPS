@@ -1,52 +1,40 @@
-"""Unit economics controller."""
+"""
+Unit economics controller - serves dynamic unit economics from PostgreSQL.
+"""
 
 from typing import Any
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter
+from app.api import deps
+from app.services.unit_economics_service import unit_economics_service
+from app.models import Tenant
 
 unit_economics_controller = APIRouter(prefix="/unit-economics", tags=["Unit Economics"])
 
 
+def _resolve_tenant_id(current_user: Any, db: Session) -> str:
+    if current_user and hasattr(current_user, "tenant_id") and current_user.tenant_id:
+        return str(current_user.tenant_id)
+    tenant = db.query(Tenant).first()
+    return str(tenant.id) if tenant else "default"
+
+
 @unit_economics_controller.get("/summary")
-def get_unit_economics_summary() -> dict[str, Any]:
-    return {"month": "Mar 2026", "costPerUser": 2.78, "costPerTransaction": 0.0040, "revenue": 1260000, "margin": 71.8}
-
-
-@unit_economics_controller.get("/cost-per-user")
-def get_cost_per_user() -> list[dict[str, Any]]:
-    return [{"month": "Apr 2025", "value": 2.45}, {"month": "Mar 2026", "value": 2.78}]
-
-
-@unit_economics_controller.get("/cost-per-transaction")
-def get_cost_per_transaction() -> list[dict[str, Any]]:
-    return [{"month": "Apr 2025", "value": 0.0032}, {"month": "Mar 2026", "value": 0.0040}]
-
-
-@unit_economics_controller.get("/gross-margin")
-def get_gross_margin() -> list[dict[str, Any]]:
-    return [{"month": "Apr 2025", "margin": 74.2, "revenue": 890000}]
-
-
-@unit_economics_controller.get("/benchmark")
-def get_benchmark() -> dict[str, Any]:
-    return {"industry": {"costPerUser": 3.10, "grossMargin": 72.0}, "yours": {"costPerUser": 2.78, "grossMargin": 71.8}}
+def get_unit_economics_summary(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Get latest unit economics KPIs dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return unit_economics_service.get_summary(db, tenant_id)
 
 
 @unit_economics_controller.get("/trends")
-def get_unit_economics_trends() -> list[dict[str, Any]]:
-    return [{
-  "month": "Apr 2025",
-  "costPerUser": 2.45,
-  "costPerTransaction": 0.0032,
-  "revenue": 890000,
-  "margin": 74.2
-}]
-
-
-@unit_economics_controller.get("/sample")
-def sample_unit_economics():
-    return {
-        'data': [],
-        'msg': "Unit economics data fetched successfully"
-    }
-
+def get_unit_economics_trends(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get unit economics trends dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return unit_economics_service.get_trends(db, tenant_id)

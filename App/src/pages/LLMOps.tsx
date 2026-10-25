@@ -76,8 +76,8 @@ type LLMOpsPayload = {
   quickActions: QuickAction[];
 };
 
-const API_URL = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "")) + "/dashboard/llm-ops";
-
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : ""));
+const API_URL = `${API_BASE_URL}/dashboard/llm-ops`;
 
 const COLORS = ["#16a34a", "#0ea5e9", "#f97316", "#8b5cf6", "#ec4899"];
 
@@ -98,36 +98,27 @@ export default function LLMOps() {
     const loadData = async () => {
       try {
         setLoading(true);
-        try {
-          const response = await fetch(API_URL);
+        const token = localStorage.getItem("access_token");
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
 
-          if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
-          }
+        let response = await fetch(API_URL, { headers });
+        if (!response.ok) {
+          response = await fetch(`${API_BASE_URL}/api/llm-ops`, { headers });
+        }
+        if (!response.ok) {
+          response = await fetch(`${API_BASE_URL}/llm-ops`, { headers });
+        }
 
-          const json = (await response.json()) as LLMOpsPayload;
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
 
-          if (!json?.summary) {
-            throw new Error("Invalid LLM Ops payload");
-          }
+        const json = (await response.json()) as LLMOpsPayload;
 
-          if (mounted) {
-            setData(json);
-            setError(null);
-          }
-        } catch {
-          // Fallback to mock data from fakedata.json
-          const response = await fetch("/fakedata.json");
-          if (!response.ok) {
-            throw new Error("Failed to load mock data");
-          }
-          const allData = await response.json();
-          const llmOpsData = allData.llmOps as LLMOpsPayload;
-          
-          if (mounted) {
-            setData(llmOpsData);
-            setError(null);
-          }
+        if (mounted) {
+          setData(json);
+          setError(null);
         }
       } catch (err) {
         if (mounted) {
@@ -148,18 +139,26 @@ export default function LLMOps() {
   }, []);
 
   const summaryCards = useMemo(() => {
-    if (!data) {
+    if (!data || !data.summary) {
       return [];
     }
 
+    const s = data.summary as any;
+    const reqStr = s.requests != null ? Number(s.requests).toLocaleString() : "0";
+    const tokStr = s.tokens != null ? Number(s.tokens).toLocaleString() : "0";
+    const costStr = s.cost != null ? `$${Number(s.cost).toFixed(2)}` : "$0.00";
+    const srStr = s.successRate != null ? `${s.successRate}%` : "0%";
+    const latStr = s.avgLatency != null ? `${s.avgLatency}ms` : "0ms";
+
     return [
-      { label: "Requests", value: data.summary.requests.toLocaleString(), helper: "Total requests" },
-      { label: "Tokens", value: data.summary.tokens.toLocaleString(), helper: "Prompt + completion tokens" },
-      { label: "Cost", value: `$${data.summary.cost.toFixed(2)}`, helper: "Monthly spend" },
-      { label: "Success rate", value: `${data.summary.successRate}%`, helper: "Successful completions" },
-      { label: "Avg latency", value: `${data.summary.avgLatency}ms`, helper: "Average response time" },
+      { label: "Requests", value: reqStr, helper: "Total requests" },
+      { label: "Tokens", value: tokStr, helper: "Prompt + completion tokens" },
+      { label: "Cost", value: costStr, helper: "Monthly spend" },
+      { label: "Success rate", value: srStr, helper: "Successful completions" },
+      { label: "Avg latency", value: latStr, helper: "Average response time" },
     ];
   }, [data]);
+
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -196,7 +195,7 @@ export default function LLMOps() {
                 <CardDescription>Operational highlights across usage and quality.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3 sm:gap-4 md:grid-cols-2">
-                {data.kpis.map((kpi) => (
+                {(data.kpis || []).map((kpi) => (
                   <div key={kpi.label} className="rounded-lg border p-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-muted-foreground">{kpi.label}</p>
@@ -214,7 +213,7 @@ export default function LLMOps() {
                 <CardDescription>Useful next steps for the team.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {data.quickActions.map((action) => (
+                {(data.quickActions || []).map((action) => (
                   <div key={action.title} className="rounded-lg border p-3">
                     <p className="font-medium">{action.title}</p>
                     <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
@@ -231,13 +230,13 @@ export default function LLMOps() {
                 <CardDescription>Monthly spend over the last six months.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {data.costTrend.map((point) => (
+                {(data.costTrend || []).map((point) => (
                   <div key={point.month}>
                     <div className="mb-1 flex items-center justify-between text-sm">
                       <span>{point.month}</span>
-                      <span>${(point.cost / 1000).toFixed(1)}K</span>
+                      <span>${((point.cost || 0) / 1000).toFixed(1)}K</span>
                     </div>
-                    <Progress value={(point.cost / 218900) * 100} />
+                    <Progress value={((point.cost || 0) / 218900) * 100} />
                   </div>
                 ))}
               </CardContent>
@@ -252,7 +251,7 @@ export default function LLMOps() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={data.providerUsage}
+                      data={data.providerUsage || []}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -260,7 +259,7 @@ export default function LLMOps() {
                       paddingAngle={5}
                       dataKey="share"
                     >
-                      {data.providerUsage.map((entry, index) => (
+                      {(data.providerUsage || []).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -268,8 +267,8 @@ export default function LLMOps() {
                       contentStyle={{ backgroundColor: "hsl(var(--background))", borderColor: "hsl(var(--border))", borderRadius: "8px" }}
                       itemStyle={{ color: "hsl(var(--foreground))" }}
                       formatter={(value: number, name: string, props: any) => [
-                        `${value}% ($${props.payload.cost})`,
-                        props.payload.name
+                        `${value}% ($${props?.payload?.cost ?? 0})`,
+                        props?.payload?.name ?? ""
                       ]}
                     />
                   </PieChart>
@@ -296,7 +295,7 @@ export default function LLMOps() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.recentExecutions.map((execution) => (
+                    {(data.recentExecutions || []).map((execution) => (
                       <TableRow key={execution.id}>
                         <TableCell>{execution.id}</TableCell>
                         <TableCell>{execution.name}</TableCell>
@@ -316,7 +315,7 @@ export default function LLMOps() {
                 <CardDescription>Service health and latency for core tools.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {data.toolRegistry.map((tool) => (
+                {(data.toolRegistry || []).map((tool) => (
                   <div key={tool.name} className="flex items-center justify-between rounded-lg border p-3">
                     <div>
                       <p className="font-medium">{tool.name}</p>
@@ -336,7 +335,7 @@ export default function LLMOps() {
                 <CardDescription>Safety and policy monitoring signals.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {data.guardrails.map((guardrail) => (
+                {(data.guardrails || []).map((guardrail) => (
                   <div key={guardrail.name} className="rounded-lg border p-3">
                     <div className="flex items-center justify-between">
                       <p className="font-medium">{guardrail.name}</p>
@@ -355,7 +354,7 @@ export default function LLMOps() {
                 <CardDescription>Retrieval quality and grounding measures.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {data.ragStats.map((stat) => (
+                {(data.ragStats || []).map((stat) => (
                   <div key={stat.name} className="flex items-center justify-between rounded-lg border p-3">
                     <p className="font-medium">{stat.name}</p>
                     <span className="text-sm text-muted-foreground">{stat.value}</span>

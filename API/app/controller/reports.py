@@ -1,36 +1,57 @@
-"""Reports controller."""
+"""
+Reports controller - serves dynamic report configurations and exports from PostgreSQL.
+"""
 
 from typing import Any
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Body, status
+from app.api import deps
+from app.services.reports_service import reports_service
+from app.models import Tenant
 
 reports_controller = APIRouter(prefix="/reports", tags=["Reports"])
 
 
+def _resolve_tenant_id(current_user: Any, db: Session) -> str:
+    if current_user and hasattr(current_user, "tenant_id") and current_user.tenant_id:
+        return str(current_user.tenant_id)
+    tenant = db.query(Tenant).first()
+    return str(tenant.id) if tenant else "default"
+
+
 @reports_controller.get("")
-def get_reports() -> list[dict[str, Any]]:
-    return [
-        {"name": "Weekly Cost Summary", "frequency": "Weekly", "recipients": ["cfo@company.com"], "lastRun": "2026-03-10T08:00:00Z", "format": "PDF"},
-    ]
-
-
-@reports_controller.get("/{report_id}")
-def get_report(report_id: str) -> dict[str, Any]:
-    return {"id": report_id, "name": "Weekly Cost Summary", "frequency": "Weekly", "recipients": ["cfo@company.com"], "lastRun": "2026-03-10T08:00:00Z", "format": "PDF"}
+def get_reports(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get all reports dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return reports_service.get_reports(db, tenant_id)
 
 
 @reports_controller.post("/create", status_code=status.HTTP_201_CREATED)
-def create_report(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
-    return {"id": "rpt-1711361400000", "message": "Report created successfully."}
-
-
-@reports_controller.put("/{report_id}/update")
-def update_report(report_id: str, payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
-    return {"id": report_id, "name": "Weekly Cost Summary", "updated": True}
+def create_report(
+    payload: dict[str, Any] = Body(...),
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Create a new report in the database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return reports_service.create_report(db, tenant_id, payload)
 
 
 @reports_controller.delete("/{report_id}")
-def delete_report(report_id: str) -> dict[str, Any]:
+def delete_report(
+    report_id: str,
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Delete a report from the database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    success = reports_service.delete_report(db, tenant_id, report_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Report not found")
     return {"message": f"Report {report_id} deleted."}
 
 
@@ -41,18 +62,4 @@ def generate_report(report_id: str) -> dict[str, Any]:
 
 @reports_controller.get("/{report_id}/download")
 def download_report(report_id: str) -> dict[str, Any]:
-    return {"downloadUrl": f"/exports/{report_id}_report.pdf"}
-
-
-@reports_controller.get("/schedules")
-def get_report_schedules() -> list[dict[str, Any]]:
-    return [{"name": "Weekly Cost Summary", "frequency": "Weekly", "lastRun": "2026-03-10T08:00:00Z"}]
-
-
-@reports_controller.get("/sample")
-def sample_reports():
-    return {
-        'data': [],
-        'msg': "Reports fetched successfully"
-    }
-
+    return {"downloadUrl": f"/reports/{report_id}.pdf"}

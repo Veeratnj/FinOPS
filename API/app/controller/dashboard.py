@@ -1,112 +1,115 @@
-"""Dashboard controller."""
+"""
+Dashboard controller - serves dashboard metrics directly from PostgreSQL.
+"""
 
-import json
+from datetime import datetime, timezone
 from typing import Any
-from pathlib import Path
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter
+from app.api import deps
+from app.services.metrics_service import metrics_service
+from app.models import Tenant
 
 dashboard_controller = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
-# Load metrics data once at startup
-_metrics_cache = None
 
-
-def _load_metrics_data() -> dict[str, Any]:
-    """Load and cache the metrics data from fakedata.json."""
-    global _metrics_cache
-
-    if _metrics_cache is not None:
-        return _metrics_cache
-
-    # Try to find data file in the public directory
-    repo_root = Path(__file__).resolve().parents[3]
-    possible_paths = [
-        repo_root / "App" / "public" / "fakedata.json",
-        repo_root / "Ctrls-BUI" / "public" / "fakedata.json",
-        Path(__file__).parent.parent.parent / "Ctrls-BUI" / "public" / "fakedata.json",
-    ]
-
-    for path in possible_paths:
-        if path.exists():
-            with open(path, 'r') as f:
-                _metrics_cache = json.load(f)
-                return _metrics_cache
-
-    print(f"Warning: metrics data file not found")
-    return {}
-
-
-def get_client_demo_dashboard() -> dict[str, Any]:
-    """Return agent operations data from metrics."""
-    data = _load_metrics_data()
-    return data.get("agentOps", {})
-
-
-def get_llm_ops_dashboard() -> dict[str, Any]:
-    """Return LLM operations data from metrics."""
-    data = _load_metrics_data()
-    return data.get("llmOps", {})
+def _resolve_tenant_id(current_user: Any, db: Session) -> str:
+    """Helper to get tenant_id from auth context or fallback to default active tenant."""
+    if current_user and hasattr(current_user, "tenant_id") and current_user.tenant_id:
+        return str(current_user.tenant_id)
+    tenant = db.query(Tenant).first()
+    return str(tenant.id) if tenant else "default"
 
 
 @dashboard_controller.get("/summary")
-def get_dashboard_summary() -> dict[str, Any]:
-    """Get cost summary from metrics data."""
-    data = _load_metrics_data()
-    return data.get("summary", {})
+def get_dashboard_summary(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Get cost summary dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return metrics_service.get_summary(db, tenant_id)
 
 
 @dashboard_controller.get("/spend-trend")
-def get_spend_trend() -> list[dict[str, Any]]:
-    """Get cost trends from metrics data."""
-    data = _load_metrics_data()
-    return data.get("costTrend", [])
+def get_spend_trend(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get cost trends dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return metrics_service.get_cost_trend(db, tenant_id)
 
 
 @dashboard_controller.get("/cost-by-category")
-def get_cost_by_category() -> list[dict[str, Any]]:
-    """Get cost breakdown by category from metrics data."""
-    data = _load_metrics_data()
-    return data.get("costByCategory", [])
+def get_cost_by_category(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get cost breakdown by category dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    all_data = metrics_service.get_all_metrics(db, tenant_id)
+    return all_data.get("costByCategory", [])
 
 
 @dashboard_controller.get("/top-services")
-def get_top_services() -> list[dict[str, Any]]:
-    """Get top services from metrics data."""
-    data = _load_metrics_data()
-    return data.get("topServices", [])
+def get_top_services(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get top services dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    all_data = metrics_service.get_all_metrics(db, tenant_id)
+    return all_data.get("topServices", [])
 
 
 @dashboard_controller.get("/recommendations-widget")
-def get_recommendations_widget() -> list[dict[str, Any]]:
-    """Get recommendations from metrics data."""
-    data = _load_metrics_data()
-    return data.get("recommendations", [])
+def get_recommendations_widget(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get recommendations widget from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    all_data = metrics_service.get_all_metrics(db, tenant_id)
+    return all_data.get("recommendations", [])[:3]
 
 
 @dashboard_controller.get("/anomalies-widget")
-def get_anomalies_widget() -> list[dict[str, Any]]:
-    """Get anomalies from metrics data."""
-    data = _load_metrics_data()
-    return data.get("anomalies", [])
+def get_anomalies_widget(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get anomalies widget from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    all_data = metrics_service.get_all_metrics(db, tenant_id)
+    return all_data.get("anomalies", [])[:3]
 
 
 @dashboard_controller.get("/reports-widget")
-def get_reports_widget() -> list[dict[str, Any]]:
-    """Get reports from metrics data."""
-    data = _load_metrics_data()
-    return data.get("reports", [])
+def get_reports_widget(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> list[dict[str, Any]]:
+    """Get reports widget from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    all_data = metrics_service.get_all_metrics(db, tenant_id)
+    return all_data.get("reports", [])
 
 
 @dashboard_controller.post("/refresh")
 def refresh_dashboard() -> dict[str, Any]:
-    return {"message": "Dashboard data refreshed.", "timestamp": "2026-03-25T13:00:00.000Z"}
+    return {"message": "Dashboard data refreshed.", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 
 @dashboard_controller.get("/sample")
-def sample_dashboard():
-    """Get sample/all dashboard data from metrics."""
-    data = _load_metrics_data()
+def sample_dashboard(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+):
+    """Get all dashboard data from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    data = metrics_service.get_all_metrics(db, tenant_id)
     return {
         'data': data,
         'msg': "Dashboard data fetched successfully"
@@ -114,13 +117,20 @@ def sample_dashboard():
 
 
 @dashboard_controller.get("/agent-ops")
-def agent_ops_dashboard() -> dict[str, Any]:
-    """Return the agent operations demo payload."""
-    return get_client_demo_dashboard()
+def agent_ops_dashboard(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Return live Agent Operations data dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return metrics_service.get_agent_ops(db, tenant_id)
 
 
 @dashboard_controller.get("/llm-ops")
-def llm_ops_dashboard() -> dict[str, Any]:
-    """Return the LLM operations demo payload."""
-    return get_llm_ops_dashboard()
-
+def llm_ops_dashboard(
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Return live LLM Operations data dynamically from database."""
+    tenant_id = _resolve_tenant_id(current_user, db)
+    return metrics_service.get_llm_ops(db, tenant_id)

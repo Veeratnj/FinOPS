@@ -237,7 +237,7 @@ export const AuthProvider: React.FC<{
      UPDATE PROFILE
   ========================= */
 
-  const updateProfile = (
+  const updateProfile = async (
     updates: Partial<User>
   ) => {
 
@@ -254,6 +254,21 @@ export const AuthProvider: React.FC<{
       "user",
       JSON.stringify(updatedUser)
     );
+
+    try {
+      const apiBase = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
+      const token = localStorage.getItem("access_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      await fetch(`${apiBase}/api/users/me`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(updates),
+      });
+    } catch (e) {
+      console.error("Failed to sync profile update to PostgreSQL database:", e);
+    }
   };
 
   /* =========================

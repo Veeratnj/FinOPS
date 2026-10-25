@@ -147,6 +147,8 @@ class User(TimestampMixin, TenantMixin, Base):
         UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
     email: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str | None] = mapped_column(String(255))
+    department: Mapped[str | None] = mapped_column(String(255))
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(50), default="viewer")  # owner/admin/viewer
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -996,3 +998,134 @@ class ForecastingAccuracy(TimestampMixin, TenantMixin, Base):
     last_evaluated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# Unit Economics
+# ──────────────────────────────────────────────
+
+class UnitEconomicsRecord(TimestampMixin, TenantMixin, Base):
+    """Monthly unit economics KPIs and margins."""
+    __tablename__ = "unit_economics"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    month: Mapped[str] = mapped_column(String(50), nullable=False)
+    cost_per_user: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    cost_per_transaction: Mapped[Decimal] = mapped_column(Numeric(12, 4), default=Decimal("0"))
+    revenue: Mapped[Decimal] = mapped_column(Numeric(14, 2), default=Decimal("0"))
+    margin: Mapped[Decimal] = mapped_column(Numeric(6, 2), default=Decimal("0"))
+    extra: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# Docker Analytics
+# ──────────────────────────────────────────────
+
+class DockerAnalyticsRecord(TimestampMixin, TenantMixin, Base):
+    """Docker container intelligence and host telemetry."""
+    __tablename__ = "docker_analytics"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    summary: Mapped[dict] = mapped_column(JSONB, default=dict)
+    host_nodes: Mapped[list] = mapped_column(JSONB, default=list)
+    containers: Mapped[list] = mapped_column(JSONB, default=list)
+    storage_waste: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# Multi-Cloud Analytics
+# ──────────────────────────────────────────────
+
+class MultiCloudAnalyticsRecord(TimestampMixin, TenantMixin, Base):
+    """Cross-cloud telemetry, arbitrage, and spend comparisons."""
+    __tablename__ = "multi_cloud_analytics"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    summary: Mapped[dict] = mapped_column(JSONB, default=dict)
+    trend: Mapped[list] = mapped_column(JSONB, default=list)
+    providers: Mapped[dict] = mapped_column(JSONB, default=dict)
+    cross_cloud_arbitrage: Mapped[list] = mapped_column(JSONB, default=list)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# Hardware Orchestration
+# ──────────────────────────────────────────────
+
+class HardwareOrchestrationRecord(TimestampMixin, TenantMixin, Base):
+    """GPU, MPU, CPU, and LPU hardware fleet metrics."""
+    __tablename__ = "hardware_orchestration"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    summary: Mapped[dict] = mapped_column(JSONB, default=dict)
+    accelerators: Mapped[dict] = mapped_column(JSONB, default=dict)
+    recommendations: Mapped[list] = mapped_column(JSONB, default=list)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# TokenOPS Analytics
+# ──────────────────────────────────────────────
+
+class TokenOpsRecord(TimestampMixin, TenantMixin, Base):
+    """Token consumption, models, consumers, and prompt intelligence."""
+    __tablename__ = "token_ops"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    summary: Mapped[dict] = mapped_column(JSONB, default=dict)
+    kpis: Mapped[list] = mapped_column(JSONB, default=list)
+    cost_trend: Mapped[list] = mapped_column(JSONB, default=list)
+    top_consumers: Mapped[dict] = mapped_column(JSONB, default=dict)
+    model_breakdown: Mapped[list] = mapped_column(JSONB, default=list)
+    prompt_analytics: Mapped[dict] = mapped_column(JSONB, default=dict)
+    data: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+
+
+# ──────────────────────────────────────────────
+# LLMOps Analytics
+# ──────────────────────────────────────────────
+
+class LLMOpsRecord(TimestampMixin, TenantMixin, Base):
+    """LLM operations, requests, tokens, costs, providers, guardrails, and telemetry."""
+    __tablename__ = "llm_ops"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    tenant_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    summary: Mapped[dict] = mapped_column(JSONB, default=dict)
+    kpis: Mapped[list] = mapped_column(JSONB, default=list)
+    cost_trend: Mapped[list] = mapped_column(JSONB, default=list)
+    provider_usage: Mapped[list] = mapped_column(JSONB, default=list)
+    recent_executions: Mapped[list] = mapped_column(JSONB, default=list)
+    tool_registry: Mapped[list] = mapped_column(JSONB, default=list)
+    guardrails: Mapped[list] = mapped_column(JSONB, default=list)
+    rag_stats: Mapped[list] = mapped_column(JSONB, default=list)
+    quick_actions: Mapped[list] = mapped_column(JSONB, default=list)
+    data: Mapped[dict] = mapped_column(JSONB, default=dict)
+
+    tenant: Mapped[Tenant] = relationship("Tenant")
+

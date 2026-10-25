@@ -18,26 +18,35 @@ export function useFinOpsData(): UseFinOpsDataReturn {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Call the metrics API endpoint instead of static file
-        const endpoint = `${API_BASE_URL}/metrics/all`;
-        const res = await fetch(endpoint);
-        if (!res.ok) throw new Error(`Failed to fetch data: ${res.status}`);
+        setLoading(true);
+        const token = localStorage.getItem("access_token");
+        const headers: HeadersInit = {
+          "Content-Type": "application/json",
+        };
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        // Call the dynamic metrics API endpoint backed 100% by PostgreSQL
+        let endpoint = `${API_BASE_URL}/api/metrics/all`;
+        let res = await fetch(endpoint, { headers });
+
+        if (!res.ok) {
+          endpoint = `${API_BASE_URL}/metrics/all`;
+          res = await fetch(endpoint, { headers });
+        }
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch FinOps metrics from PostgreSQL database: ${res.status}`);
+        }
+
         const json: FinOpsData = await res.json();
         setData(json);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-        // Fallback to static file if API is not available (for development)
-        console.warn("API unavailable, attempting fallback...");
-        try {
-          const fallbackRes = await fetch("/fakedata.json");
-          if (fallbackRes.ok) {
-            const json: FinOpsData = await fallbackRes.json();
-            setData(json);
-            setError(null);
-          }
-        } catch (fallbackErr) {
-          console.error("Fallback also failed:", fallbackErr);
-        }
+        const msg = err instanceof Error ? err.message : "Unknown error while querying PostgreSQL API";
+        setError(msg);
+        console.error("FinOps API error:", msg);
       } finally {
         setLoading(false);
       }

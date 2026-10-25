@@ -115,19 +115,8 @@ export default function AgentOps() {
             setData(json);
             setError(null);
           }
-        } catch {
-          // Fallback to mock data from fakedata.json
-          const response = await fetch("/fakedata.json");
-          if (!response.ok) {
-            throw new Error("Failed to load mock data");
-          }
-          const allData = await response.json();
-          const agentOpsData = allData.agentOps as AgentOpsPayload;
-          
-          if (mounted) {
-            setData(agentOpsData);
-            setError(null);
-          }
+        } catch (fetchErr) {
+          throw fetchErr;
         }
       } catch (err) {
         if (mounted) {

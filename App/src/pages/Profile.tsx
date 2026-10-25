@@ -26,6 +26,31 @@ export const ProfilePage: React.FC = () => {
     role: user?.role || 'viewer',
   });
 
+  React.useEffect(() => {
+    async function fetchMe() {
+      try {
+        const apiBase = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
+        const token = localStorage.getItem("access_token");
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const res = await fetch(`${apiBase}/api/users/me`, { headers });
+        if (res.ok) {
+          const u = await res.json();
+          setFormData({
+            name: u.name || '',
+            email: u.email || '',
+            department: u.department || '',
+            role: u.role || 'viewer',
+          });
+        }
+      } catch (e) {
+        console.error("Failed to load user profile from database:", e);
+      }
+    }
+    fetchMe();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({

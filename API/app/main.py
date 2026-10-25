@@ -26,7 +26,7 @@ from app.controller import (
     tenant_controller,
     user_operations_controller,
     metrics_controller,
-
+    intelligence_controller,
 )
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -96,10 +96,12 @@ api_router.include_router(budgets_controller)
 api_router.include_router(users_controller)
 api_router.include_router(user_operations_controller)
 api_router.include_router(virtual_tags_controller)
+api_router.include_router(intelligence_controller)
 
 app.include_router(api_router)
 app.include_router(dashboard_controller)
 app.include_router(metrics_controller)
+app.include_router(intelligence_controller)
 
 
 @app.get("/health")

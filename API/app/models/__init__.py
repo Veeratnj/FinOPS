@@ -30,6 +30,12 @@ __all__ = [
     "PaymentReceipt",
     "ForecastingDriver",
     "ForecastingAccuracy",
+    "UnitEconomicsRecord",
+    "DockerAnalyticsRecord",
+    "MultiCloudAnalyticsRecord",
+    "HardwareOrchestrationRecord",
+    "TokenOpsRecord",
+    "LLMOpsRecord",
     # Enums
     "AcceleratorType",
     "AcceleratorStatus",
