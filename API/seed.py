@@ -76,6 +76,13 @@ def seed_database() -> None:
     # 1. Create all schema tables
     print("[1/10] Verifying and creating all PostgreSQL tables...")
     Base.metadata.create_all(bind=engine)
+    try:
+        from sqlalchemy import text
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS department VARCHAR(255);"))
+    except Exception as e:
+        print(f"[!] Note on schema check: {e}")
     print("[OK] All PostgreSQL tables verified/created.")
 
     db = SessionLocal()

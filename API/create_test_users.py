@@ -37,6 +37,7 @@ elif root_env.is_file():
 else:
     load_dotenv()
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.security import get_password_hash
@@ -78,18 +79,26 @@ DEFAULT_TEST_USERS = [
 ]
 
 
-def get_or_create_tenant(db: Session, slug: str = "finops-corp", name: str = "FinOps Enterprise Corp") -> Tenant:
+def get_or_create_tenant(
+    db: Session,
+    slug: str = "finops-corp",
+    name: str | None = None,
+    plan: str = "enterprise",
+) -> Tenant:
     """Find an existing tenant organization or create a new one."""
     tenant = db.query(Tenant).filter(Tenant.slug == slug).first()
     if not tenant:
+        display_name = name if name else (
+            "FinOps Enterprise Corp" if slug == "finops-corp" else slug.replace("-", " ").replace("_", " ").title()
+        )
         tenant = Tenant(
-            name=name,
+            name=display_name,
             slug=slug,
-            plan="enterprise",
+            plan=plan,
             is_active=True,
             metadata_={
                 "industry": "Cloud & AI Infrastructure",
-                "admin_name": "FinOps Admin",
+                "admin_name": f"{display_name} Admin",
             },
         )
         db.add(tenant)
@@ -101,7 +110,15 @@ def get_or_create_tenant(db: Session, slug: str = "finops-corp", name: str = "Fi
     return tenant  # type: ignore[return-value]
 
 
-def insert_or_update_user(db: Session, tenant_id: str, email: str, password: str, role: str) -> tuple[User, bool]:
+def insert_or_update_user(
+    db: Session,
+    tenant_id: str,
+    email: str,
+    password: str,
+    role: str,
+    name: str | None = None,
+    department: str | None = None,
+) -> tuple[User, bool]:
     """Insert or update user record."""
     clean_email = email.strip().lower()
     user = (
@@ -120,6 +137,8 @@ def insert_or_update_user(db: Session, tenant_id: str, email: str, password: str
             role=role,
             tenant_id=tenant_id,
             is_active=True,
+            name=name,
+            department=department,
         )
         db.add(user)
         is_created = True
@@ -127,6 +146,10 @@ def insert_or_update_user(db: Session, tenant_id: str, email: str, password: str
         user.password_hash = hashed_pwd
         user.role = role
         user.is_active = True
+        if name is not None:
+            user.name = name
+        if department is not None:
+            user.department = department
 
     db.commit()
     db.refresh(user)
@@ -137,8 +160,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Insert test users for AI FinOps Platform")
     parser.add_argument("--email", type=str, help="User email address")
     parser.add_argument("--password", type=str, help="User password")
+    parser.add_argument("--name", type=str, default=None, help="User display name")
+    parser.add_argument("--department", type=str, default=None, help="User department")
     parser.add_argument("--role", type=str, default="admin", choices=["admin", "manager", "analyst", "viewer", "owner"], help="User role")
     parser.add_argument("--org", type=str, default="finops-corp", help="Tenant organization slug")
+    parser.add_argument("--org-name", type=str, default=None, help="Tenant organization display name")
+    parser.add_argument("--org-plan", type=str, default="enterprise", choices=["starter", "pro", "enterprise"], help="Tenant plan")
+    parser.add_argument("--org-only", action="store_true", help="Only create or verify the organization")
     args = parser.parse_args()
 
     print("=" * 65)
@@ -146,15 +174,28 @@ def main() -> None:
     print("Database:", settings.SQLALCHEMY_DATABASE_URI)
     print("=" * 65)
 
-    # Ensure tables exist
+    # Ensure tables exist and patch any missing columns on existing tables
     try:
         Base.metadata.create_all(bind=engine)
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR(255);"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS department VARCHAR(255);"))
     except Exception as e:
-        print(f"[-] Warning creating tables: {e}")
+        print(f"[-] Warning creating tables / migrating columns: {e}")
 
     db = SessionLocal()
     try:
-        tenant = get_or_create_tenant(db, slug=args.org)
+        tenant = get_or_create_tenant(db, slug=args.org, name=args.org_name, plan=args.org_plan)
+
+        if args.org_only:
+            print("\n" + "=" * 65)
+            print(f"[OK] Organization ready!")
+            print(f"     ID   : {tenant.id}")
+            print(f"     Name : {tenant.name}")
+            print(f"     Slug : {tenant.slug}")
+            print(f"     Plan : {tenant.plan}")
+            print("=" * 65)
+            return
 
         results = []
 
@@ -166,6 +207,8 @@ def main() -> None:
                 email=args.email,
                 password=args.password,
                 role=args.role,
+                name=args.name,
+                department=args.department,
             )
             results.append({
                 "email": user.email,
@@ -183,6 +226,8 @@ def main() -> None:
                     email=item["email"],
                     password=item["password"],
                     role=item["role"],
+                    name=item.get("name"),
+                    department=item.get("department"),
                 )
                 results.append({
                     "email": user.email,
