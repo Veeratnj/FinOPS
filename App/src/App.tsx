@@ -19,6 +19,7 @@ import { ProfilePage } from "@/pages/Profile";
 
 import Dashboard from "@/pages/Dashboard";
 import FeatureShowcase from "@/pages/FeatureShowcase";
+import FinOpsAgentFlow from "@/pages/FinOpsAgentFlow";
 import AgentOps from "@/pages/AgentOps";
 import LLMOps from "@/pages/LLMOps";
 import TokenOPS from "@/pages/TokenOPS";
@@ -99,6 +100,9 @@ const App = () => (
                     <Route path="docker" element={<Docker />} />
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="features" element={<FeatureShowcase />} />
+                    <Route path="agent-flow" element={<FinOpsAgentFlow />} />
+                    <Route path="seynova-agent" element={<FinOpsAgentFlow />} />
+                    <Route path="finops-agent" element={<FinOpsAgentFlow />} />
                     <Route path="agent-ops" element={<AgentOps />} />
                     <Route path="llm-ops" element={<LLMOps />} />
                     <Route path="token-ops" element={<TokenOPS />} />

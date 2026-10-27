@@ -2,6 +2,14 @@
 AI FinOps Platform - FastAPI Application
 """
 
+import sys
+from pathlib import Path
+
+# Ensure root workspace directory is in sys.path
+_ROOT_DIR = str(Path(__file__).resolve().parent.parent.parent)
+if _ROOT_DIR not in sys.path:
+    sys.path.insert(0, _ROOT_DIR)
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +35,7 @@ from app.controller import (
     user_operations_controller,
     metrics_controller,
     intelligence_controller,
+    agent_controller,
 )
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -97,6 +106,7 @@ api_router.include_router(users_controller)
 api_router.include_router(user_operations_controller)
 api_router.include_router(virtual_tags_controller)
 api_router.include_router(intelligence_controller)
+api_router.include_router(agent_controller)
 
 app.include_router(api_router)
 app.include_router(dashboard_controller)

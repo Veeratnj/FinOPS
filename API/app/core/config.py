@@ -17,11 +17,11 @@ _ROOT_ENV = _ROOT_DIR / ".env"
 _LOCAL_ENV = Path(__file__).resolve().parents[2] / ".env"
 
 if _ROOT_ENV.is_file():
-    load_dotenv(_ROOT_ENV, override=False)
+    load_dotenv(_ROOT_ENV, override=True)
 elif _LOCAL_ENV.is_file():
-    load_dotenv(_LOCAL_ENV, override=False)
+    load_dotenv(_LOCAL_ENV, override=True)
 else:
-    load_dotenv()
+    load_dotenv(override=True)
 
 
 class Settings(BaseSettings):

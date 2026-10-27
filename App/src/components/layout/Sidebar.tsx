@@ -22,7 +22,8 @@ import {
   CreditCard, 
   Bot, 
   Cpu,
-  Lock
+  Lock,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSubscription } from "@/context/SubscriptionContext";
@@ -34,6 +35,7 @@ interface NavGroup {
     label: string;
     icon: any;
     requiredPlan?: string;
+    badge?: string;
   }[];
 }
 
@@ -49,6 +51,7 @@ const navGroups: NavGroup[] = [
   {
     groupName: "AI Intelligence",
     items: [
+      { path: "/agent-flow", label: "Seynova Agent", icon: Sparkles, badge: "AI" },
       { path: "/agent-ops", label: "Agent Ops", icon: Bot },
       { path: "/token-ops", label: "Token-OPS", icon: Cpu },
       { path: "/llm-ops", label: "LLM Ops", icon: Layers },
@@ -152,6 +155,11 @@ export function Sidebar() {
                 >
                   <item.icon size={16} className="shrink-0" />
                   {sidebarOpen && <span className="truncate">{item.label}</span>}
+                  {item.badge && sidebarOpen && (
+                    <span className="ml-auto rounded-md bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary border border-primary/30">
+                      {item.badge}
+                    </span>
+                  )}
                   {isLocked && sidebarOpen && (
                     <Lock size={12} className="ml-auto text-primary" />
                   )}

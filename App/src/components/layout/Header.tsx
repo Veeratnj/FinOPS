@@ -2,7 +2,7 @@ import { useAppContext } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { ThemeToggleButton } from "@/components/ThemeToggle";
 import { useNavigate } from "react-router-dom";
-import { Bell, Menu } from "lucide-react";
+import { Bell, Menu, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -74,6 +74,15 @@ export function Header() {
     </div>
   )
 }
+        <Button
+          size="sm"
+          onClick={() => navigate("/agent-flow")}
+          className="hidden sm:inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 font-semibold text-xs shadow-sm transition"
+        >
+          <Sparkles size={14} className="text-primary animate-pulse" />
+          <span>Run Seynova Agent</span>
+        </Button>
+
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

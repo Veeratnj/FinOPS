@@ -4,7 +4,7 @@ Anomaly schemas.
 
 from pydantic import BaseModel
 from decimal import Decimal
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 
 
@@ -20,7 +20,7 @@ class Anomaly(AnomalyBase):
     """Anomaly response schema."""
     id: str
     detected_at: datetime
-    data: List[float] = []
+    data: List[Any] = []
     status: str
 
     class Config:

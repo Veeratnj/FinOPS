@@ -34,6 +34,8 @@ class MetricBatch(BaseModel):
 
 
 class InferenceEvent(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     model_name: str
     request_id: Optional[str] = None
     status: str

@@ -7,7 +7,7 @@ echo ========================================================
 
 :: 1. Start the FastAPI Backend in a new window
 echo [1/2] Starting Backend API...
-start "FinOPS Backend" cmd /k "cd /d "%~dp0API" && (if exist .venv\Scripts\activate.bat (call .venv\Scripts\activate.bat) else (echo Note: No .venv found, running with system Python...)) && (where uvicorn >nul 2>nul && uvicorn app.main:app --reload --port 8000 || py -3.14 -m uvicorn app.main:app --reload --port 8000)"
+start "FinOPS Backend" cmd /k "cd /d "%~dp0API" && set PYTHONPATH=%~dp0;%~dp0API;%%PYTHONPATH%% && (if exist .venv\Scripts\activate.bat (call .venv\Scripts\activate.bat) else (echo Note: No .venv found, running with system Python...)) && (where uvicorn >nul 2>nul && uvicorn app.main:app --reload --port 8000 || py -3.14 -m uvicorn app.main:app --reload --port 8000)"
 
 :: 2. Start the React/Vite Frontend in a new window
 echo [2/2] Starting Frontend App...

@@ -1,0 +1,40 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_instance.api_gateway",
+          "mode": "managed",
+          "type": "aws_instance",
+          "name": "api_gateway",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "values": {
+            "instance_type": "c5.4xlarge",
+            "availability_zone": "us-east-1a",
+            "tags": {
+              "Environment": "dev",
+              "Role": "api-gateway"
+            }
+          }
+        },
+        {
+          "address": "aws_ebs_volume.cache_volume",
+          "mode": "managed",
+          "type": "aws_ebs_volume",
+          "name": "cache_volume",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "values": {
+            "size": 250,
+            "type": "gp2",
+            "availability_zone": "us-east-1a",
+            "tags": {
+              "Environment": "staging"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
