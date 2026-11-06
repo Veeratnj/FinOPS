@@ -32,6 +32,17 @@ def get_docker_analytics(
     return intelligence_service.get_docker_analytics(db, tenant_id)
 
 
+@intelligence_controller.post("/docker/seed")
+def seed_docker_analytics(
+    force: bool = True,
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Seed or refresh Docker fleet analytics data in PostgreSQL for the active tenant."""
+    tenant_id = _get_tenant_id(current_user, db)
+    return intelligence_service.seed_docker_analytics(db, tenant_id, force=force)
+
+
 @intelligence_controller.get("/multi-cloud")
 def get_multi_cloud_analytics(
     db: Session = Depends(deps.get_db),
@@ -42,6 +53,17 @@ def get_multi_cloud_analytics(
     return intelligence_service.get_multi_cloud_analytics(db, tenant_id)
 
 
+@intelligence_controller.post("/multi-cloud/seed")
+def seed_multi_cloud_analytics(
+    force: bool = True,
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Seed or refresh Multi-Cloud analytics data in PostgreSQL for the active tenant."""
+    tenant_id = _get_tenant_id(current_user, db)
+    return intelligence_service.seed_multi_cloud_analytics(db, tenant_id, force=force)
+
+
 @intelligence_controller.get("/hardware-orchestration")
 def get_hardware_orchestration(
     db: Session = Depends(deps.get_db),
@@ -50,6 +72,17 @@ def get_hardware_orchestration(
     """Get GPU, MPU, CPU, and LPU hardware fleet metrics."""
     tenant_id = _get_tenant_id(current_user, db)
     return intelligence_service.get_hardware_orchestration(db, tenant_id)
+
+
+@intelligence_controller.post("/hardware-orchestration/seed")
+def seed_hardware_orchestration(
+    force: bool = True,
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Seed or refresh Hardware Orchestration data in PostgreSQL for the active tenant."""
+    tenant_id = _get_tenant_id(current_user, db)
+    return intelligence_service.seed_hardware_orchestration(db, tenant_id, force=force)
 
 
 @intelligence_controller.get("/token-ops")

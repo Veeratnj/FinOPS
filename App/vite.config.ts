@@ -14,8 +14,11 @@ export default defineConfig(({ mode }) => ({
       ".ctrls.co",
       "localhost",
     ],
-    hmr: {
-      overlay: false,
+    // Disable Vite HMR WebSocket behind reverse proxies unless explicitly enabled via VITE_ENABLE_HMR=true
+    hmr: process.env.VITE_ENABLE_HMR === "true" ? { overlay: false } : false,
+    watch: {
+      usePolling: true,
+      interval: 1000,
     },
   },
   plugins: [react()].filter(Boolean),

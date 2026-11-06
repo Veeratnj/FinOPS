@@ -5,6 +5,11 @@ All data queried directly from PostgreSQL database records.
 
 from typing import Any, Optional
 from sqlalchemy.orm import Session
+from app.core.infra_ops_seed_data import (
+    get_default_docker_analytics_payload,
+    get_default_hardware_orchestration_payload,
+    get_default_multi_cloud_payload,
+)
 from app.core.token_ops_seed_data import get_default_token_ops_payload
 from app.repositories.intelligence_repo import intelligence_repo
 from app.models import (
@@ -21,15 +26,53 @@ class IntelligenceService:
     def get_docker_analytics(db: Session, tenant_id: str) -> dict[str, Any]:
         record = intelligence_repo.get_docker_analytics(db, tenant_id)
         if record:
+            storage_waste = record.storage_waste if isinstance(record.storage_waste, list) else []
             return {
                 "id": record.id,
                 "summary": record.summary or {},
                 "hostNodes": record.host_nodes or [],
                 "containers": record.containers or [],
-                "storageWaste": record.storage_waste or {},
+                "storageWaste": storage_waste,
             }
-        # Default empty fallback structure
-        return {"summary": {}, "hostNodes": [], "containers": [], "storageWaste": {}}
+        # Default empty fallback structure (storageWaste must be a list for frontend table mapping)
+        return {"summary": {}, "hostNodes": [], "containers": [], "storageWaste": []}
+
+    @staticmethod
+    def seed_docker_analytics(
+        db: Session,
+        tenant_id: str,
+        force: bool = True,
+    ) -> dict[str, Any]:
+        """Insert or update DockerAnalyticsRecord in PostgreSQL for a specific tenant."""
+        tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' not found")
+
+        record = intelligence_repo.get_docker_analytics(db, tenant.id)
+        has_data = bool(record and record.summary and record.containers)
+        if record and has_data and not force:
+            return IntelligenceService.get_docker_analytics(db, tenant.id)
+
+        payload = get_default_docker_analytics_payload()
+        if not record:
+            record = DockerAnalyticsRecord(
+                tenant_id=tenant.id,
+                summary=payload["summary"],
+                host_nodes=payload["hostNodes"],
+                containers=payload["containers"],
+                storage_waste=payload["storageWaste"],
+            )
+            db.add(record)
+        else:
+            record.summary = payload["summary"]
+            record.host_nodes = payload["hostNodes"]
+            record.containers = payload["containers"]
+            record.storage_waste = payload["storageWaste"]
+            db.add(record)
+
+        db.commit()
+        db.refresh(record)
+        return IntelligenceService.get_docker_analytics(db, tenant.id)
 
     @staticmethod
     def get_multi_cloud_analytics(db: Session, tenant_id: str) -> dict[str, Any]:
@@ -45,6 +88,43 @@ class IntelligenceService:
         return {"summary": {}, "trend": [], "providers": {}, "crossCloudArbitrage": []}
 
     @staticmethod
+    def seed_multi_cloud_analytics(
+        db: Session,
+        tenant_id: str,
+        force: bool = True,
+    ) -> dict[str, Any]:
+        """Insert or update MultiCloudAnalyticsRecord in PostgreSQL for a specific tenant."""
+        tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' not found")
+
+        record = intelligence_repo.get_multi_cloud_analytics(db, tenant.id)
+        has_data = bool(record and record.summary and record.providers)
+        if record and has_data and not force:
+            return IntelligenceService.get_multi_cloud_analytics(db, tenant.id)
+
+        payload = get_default_multi_cloud_payload()
+        if not record:
+            record = MultiCloudAnalyticsRecord(
+                tenant_id=tenant.id,
+                summary=payload["summary"],
+                trend=payload["trend"],
+                providers=payload["providers"],
+                cross_cloud_arbitrage=payload["crossCloudArbitrage"],
+            )
+            db.add(record)
+        else:
+            record.summary = payload["summary"]
+            record.trend = payload["trend"]
+            record.providers = payload["providers"]
+            record.cross_cloud_arbitrage = payload["crossCloudArbitrage"]
+            db.add(record)
+
+        db.commit()
+        db.refresh(record)
+        return IntelligenceService.get_multi_cloud_analytics(db, tenant.id)
+
+    @staticmethod
     def get_hardware_orchestration(db: Session, tenant_id: str) -> dict[str, Any]:
         record = intelligence_repo.get_hardware_orchestration(db, tenant_id)
         if record:
@@ -55,6 +135,41 @@ class IntelligenceService:
                 "recommendations": record.recommendations or [],
             }
         return {"summary": {}, "accelerators": {}, "recommendations": []}
+
+    @staticmethod
+    def seed_hardware_orchestration(
+        db: Session,
+        tenant_id: str,
+        force: bool = True,
+    ) -> dict[str, Any]:
+        """Insert or update HardwareOrchestrationRecord in PostgreSQL for a specific tenant."""
+        tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' not found")
+
+        record = intelligence_repo.get_hardware_orchestration(db, tenant.id)
+        has_data = bool(record and record.summary and record.accelerators)
+        if record and has_data and not force:
+            return IntelligenceService.get_hardware_orchestration(db, tenant.id)
+
+        payload = get_default_hardware_orchestration_payload()
+        if not record:
+            record = HardwareOrchestrationRecord(
+                tenant_id=tenant.id,
+                summary=payload["summary"],
+                accelerators=payload["accelerators"],
+                recommendations=payload["recommendations"],
+            )
+            db.add(record)
+        else:
+            record.summary = payload["summary"]
+            record.accelerators = payload["accelerators"]
+            record.recommendations = payload["recommendations"]
+            db.add(record)
+
+        db.commit()
+        db.refresh(record)
+        return IntelligenceService.get_hardware_orchestration(db, tenant.id)
 
     @staticmethod
     def seed_token_ops(

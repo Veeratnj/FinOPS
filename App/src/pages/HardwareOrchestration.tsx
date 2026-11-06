@@ -1,71 +1,138 @@
-import { useState, useEffect } from "react";
-import { 
-  Cpu, 
-  Zap, 
-  Flame, 
-  Thermometer, 
-  TrendingDown, 
-  Layers, 
-  AlertTriangle, 
-  CheckCircle2, 
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Cpu,
+  Zap,
+  Thermometer,
+  Layers,
   Server,
   DollarSign,
   Activity,
   Gauge,
-  Sparkles
+  Sparkles,
+  RefreshCw,
 } from "lucide-react";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer, 
-  Cell, 
-  PieChart, 
-  Pie, 
-  LineChart, 
-  Line, 
-  CartesianGrid 
-} from "recharts";
 import { formatCurrency } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { PageSkeleton } from "@/components/ui/Skeletons";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
+const POLL_INTERVAL_MS = 10_000;
 
 export default function HardwareOrchestration() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<"gpu" | "mpu" | "cpu" | "lpu">("gpu");
+  const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const token = localStorage.getItem("access_token");
-        const headers: HeadersInit = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
+  const loadData = useCallback(async (isBackgroundPoll = false) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-        let res = await fetch(`${API_BASE_URL}/api/hardware-orchestration`, { headers });
-        if (!res.ok) {
-          res = await fetch(`${API_BASE_URL}/hardware-orchestration`, { headers });
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        setData(json);
-      } catch (e) {
-        console.error("Failed to load hardware orchestration data from API", e);
-      } finally {
-        setLoading(false);
-      }
+    if (isBackgroundPoll) {
+      setRefreshing(true);
     }
-    loadData();
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const fetchInit: RequestInit = {
+        headers,
+        signal: controller.signal,
+        ...(isBackgroundPoll ? { priority: "low" } : {}),
+      } as RequestInit;
+
+      let res = await fetch(`${API_BASE_URL}/api/hardware-orchestration`, fetchInit);
+      if (!res.ok) {
+        res = await fetch(`${API_BASE_URL}/hardware-orchestration`, fetchInit);
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setData(json);
+      setLastUpdated(new Date());
+    } catch (e: any) {
+      if (e?.name !== "AbortError") {
+        console.error("Failed to load hardware orchestration data from API", e);
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
-  if (loading || !data) return <PageSkeleton />;
+  useEffect(() => {
+    loadData(false);
 
-  const { summary, accelerators, recommendations } = data;
-  const currentCategory = accelerators[activeTab];
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadData(true);
+      }
+    }, POLL_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadData(true);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      abortRef.current?.abort();
+    };
+  }, [loadData]);
+
+  if (loading && !data) return <PageSkeleton />;
+
+  const summary = data?.summary ?? {};
+  const accelerators = data?.accelerators ?? {};
+  const recommendations = Array.isArray(data?.recommendations) ? data.recommendations : [];
+  const hasHardwareData = Object.keys(summary).length > 0 && Object.keys(accelerators).length > 0;
+
+  if (!hasHardwareData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">Hardware Orchestration</h1>
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                AI Silicon Engine
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Silicon-level cost, telemetry, and compute utilization across GPUs, MPUs/TPUs, CPUs, and LPUs.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => loadData(true)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/60 transition"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
+            HTTP Polling (10s)
+          </button>
+        </div>
+
+        <div className="finops-card p-10 text-center space-y-3">
+          <Server className="h-10 w-10 text-muted-foreground mx-auto opacity-60" />
+          <h2 className="text-base font-semibold">No Hardware Telemetry Data Yet</h2>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            No accelerator metrics are recorded for this organization yet. Once hardware telemetry is ingested or seeded, this view automatically updates via 10s HTTP polling.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentCategory = accelerators[activeTab] ?? { overview: {}, devices: [] };
+  const categoryOverview = currentCategory.overview ?? {};
+  const categoryDevices = Array.isArray(currentCategory.devices) ? currentCategory.devices : [];
 
   return (
     <div className="space-y-6">
@@ -85,8 +152,17 @@ export default function HardwareOrchestration() {
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/20">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Telemetry: Live (DCGM / Prometheus)
+            Telemetry: HTTP Poll (10s)
           </span>
+          <button
+            type="button"
+            onClick={() => loadData(true)}
+            title={lastUpdated ? `Last synced ${lastUpdated.toLocaleTimeString()}` : "Refresh now"}
+            className="inline-flex items-center gap-1.5 rounded-md bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/60 transition"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin text-primary")} />
+            Sync
+          </button>
         </div>
       </div>
 
@@ -97,11 +173,11 @@ export default function HardwareOrchestration() {
             <span className="text-xs font-medium uppercase tracking-wider">Total Accelerators</span>
             <Server className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold">{summary.totalAccelerators} Units</div>
+          <div className="text-2xl font-bold">{summary.totalAccelerators ?? 0} Units</div>
           <div className="mt-1 flex items-center gap-2 text-xs">
-            <span className="text-emerald-400 font-medium">{summary.activeCount} Active</span>
+            <span className="text-emerald-400 font-medium">{summary.activeCount ?? 0} Active</span>
             <span className="text-muted-foreground">•</span>
-            <span className="text-rose-400 font-medium">{summary.idleCount} Idle / Zombie</span>
+            <span className="text-rose-400 font-medium">{summary.idleCount ?? 0} Idle / Zombie</span>
           </div>
         </div>
 
@@ -110,11 +186,11 @@ export default function HardwareOrchestration() {
             <span className="text-xs font-medium uppercase tracking-wider">Compute Utilization</span>
             <Gauge className="h-4 w-4 text-sky-400" />
           </div>
-          <div className="text-2xl font-bold">{summary.avgComputeUtilization}%</div>
+          <div className="text-2xl font-bold">{summary.avgComputeUtilization ?? 0}%</div>
           <div className="mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden">
-            <div 
-              className="h-full bg-sky-400 rounded-full transition-all" 
-              style={{ width: `${summary.avgComputeUtilization}%` }} 
+            <div
+              className="h-full bg-sky-400 rounded-full transition-all"
+              style={{ width: `${summary.avgComputeUtilization ?? 0}%` }}
             />
           </div>
         </div>
@@ -124,9 +200,9 @@ export default function HardwareOrchestration() {
             <span className="text-xs font-medium uppercase tracking-wider">Hourly Run Rate</span>
             <DollarSign className="h-4 w-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-bold">${summary.totalHourlyBurn.toFixed(2)}/hr</div>
+          <div className="text-2xl font-bold">${Number(summary.totalHourlyBurn ?? 0).toFixed(2)}/hr</div>
           <div className="mt-1 text-xs text-muted-foreground">
-            Monthly est: {formatCurrency(summary.monthlyHardwareSpend)}
+            Monthly est: {formatCurrency(summary.monthlyHardwareSpend ?? 0)}
           </div>
         </div>
 
@@ -135,7 +211,7 @@ export default function HardwareOrchestration() {
             <span className="text-xs font-medium uppercase tracking-wider text-primary">Optimization Opportunity</span>
             <Sparkles className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-primary">{formatCurrency(summary.potentialMonthlySavings)}/mo</div>
+          <div className="text-2xl font-bold text-primary">{formatCurrency(summary.potentialMonthlySavings ?? 0)}/mo</div>
           <div className="mt-1 text-xs text-muted-foreground">
             Via idle shutdown & LPU/ARM arbitrage
           </div>
@@ -155,10 +231,11 @@ export default function HardwareOrchestration() {
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id as any)}
               className={cn(
                 "flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 border",
-                isActive 
+                isActive
                   ? "bg-primary text-primary-foreground border-primary shadow-[0_0_20px_rgba(124,255,0,0.2)]"
                   : "border-border/60 bg-card hover:bg-accent text-muted-foreground hover:text-foreground"
               )}
@@ -182,21 +259,24 @@ export default function HardwareOrchestration() {
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Total VRAM Deployed</div>
               <div className="text-xl font-bold mt-1">
-                {currentCategory.overview.allocatedVRAM_GB} / {currentCategory.overview.totalVRAM_GB} GB
+                {categoryOverview.allocatedVRAM_GB ?? 0} / {categoryOverview.totalVRAM_GB ?? 0} GB
               </div>
               <div className="text-xs text-emerald-400 mt-0.5">
-                {((currentCategory.overview.allocatedVRAM_GB / currentCategory.overview.totalVRAM_GB) * 100).toFixed(1)}% VRAM Allocation
+                {categoryOverview.totalVRAM_GB
+                  ? ((categoryOverview.allocatedVRAM_GB / categoryOverview.totalVRAM_GB) * 100).toFixed(1)
+                  : "0.0"}
+                % VRAM Allocation
               </div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Avg Streaming Multiprocessor (SM)</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.avgUtilization}%</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.avgUtilization ?? 0}%</div>
               <div className="text-xs text-muted-foreground mt-0.5">NVIDIA DCGM Telemetry</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">GPU Cluster Burn Rate</div>
-              <div className="text-xl font-bold mt-1">${currentCategory.overview.hourlyCost.toFixed(2)}/hr</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{currentCategory.overview.count} GPUs Provisioned</div>
+              <div className="text-xl font-bold mt-1">${Number(categoryOverview.hourlyCost ?? 0).toFixed(2)}/hr</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{categoryOverview.count ?? 0} GPUs Provisioned</div>
             </div>
           </div>
 
@@ -204,7 +284,9 @@ export default function HardwareOrchestration() {
           <div className="finops-card p-5">
             <h3 className="text-sm font-semibold mb-4 flex items-center justify-between">
               <span>Active NVIDIA Accelerator Fleet</span>
-              <span className="text-xs text-muted-foreground font-normal">Auto-polled every 10s</span>
+              <span className="text-xs text-muted-foreground font-normal">
+                Auto-polled every 10s{lastUpdated ? ` • ${lastUpdated.toLocaleTimeString()}` : ""}
+              </span>
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left">
@@ -222,7 +304,7 @@ export default function HardwareOrchestration() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {currentCategory.devices.map((device: any) => (
+                  {categoryDevices.map((device: any) => (
                     <tr key={device.id} className="hover:bg-accent/40 transition">
                       <td className="py-3 px-3 font-mono font-medium text-foreground">{device.id}</td>
                       <td className="py-3 px-3">{device.type}</td>
@@ -231,11 +313,11 @@ export default function HardwareOrchestration() {
                         <div className="flex items-center gap-2">
                           <span className="w-7 font-mono">{device.smUtil}%</span>
                           <div className="h-1.5 w-16 bg-muted rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className={cn(
                                 "h-full rounded-full",
                                 device.smUtil > 80 ? "bg-rose-500" : device.smUtil > 40 ? "bg-emerald-500" : "bg-amber-500"
-                              )} 
+                              )}
                               style={{ width: `${device.smUtil}%` }}
                             />
                           </div>
@@ -251,14 +333,14 @@ export default function HardwareOrchestration() {
                           <span>{device.powerW}W</span>
                         </div>
                       </td>
-                      <td className="py-3 px-3 font-semibold">${device.costPerHour.toFixed(2)}</td>
+                      <td className="py-3 px-3 font-semibold">${Number(device.costPerHour ?? 0).toFixed(2)}</td>
                       <td className="py-3 px-3 font-mono text-[11px] text-primary">{device.model}</td>
                       <td className="py-3 px-3">
                         <span className={cn(
                           "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                          device.status.includes("Saturated") ? "bg-amber-500/15 text-amber-400" :
-                          device.status.includes("Idle") ? "bg-rose-500/15 text-rose-400 border border-rose-500/30" :
-                          device.status.includes("Underutilized") ? "bg-yellow-500/15 text-yellow-400" :
+                          String(device.status).includes("Saturated") ? "bg-amber-500/15 text-amber-400" :
+                          String(device.status).includes("Idle") ? "bg-rose-500/15 text-rose-400 border border-rose-500/30" :
+                          String(device.status).includes("Underutilized") ? "bg-yellow-500/15 text-yellow-400" :
                           "bg-emerald-500/15 text-emerald-400"
                         )}>
                           {device.status}
@@ -278,17 +360,17 @@ export default function HardwareOrchestration() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">TPU Pod Slices Active</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.podSlices} Slices ({currentCategory.overview.count} Chips)</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.podSlices ?? 0} Slices ({categoryOverview.count ?? 0} Chips)</div>
               <div className="text-xs text-emerald-400 mt-0.5">Google Cloud TPU v4 & v5e</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Matrix Multiply Unit (MXU) Duty Cycle</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.avgUtilization}%</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.avgUtilization ?? 0}%</div>
               <div className="text-xs text-muted-foreground mt-0.5">Bfloat16 / Int8 Matrix Operations</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">TPU Hourly Cost</div>
-              <div className="text-xl font-bold mt-1">${currentCategory.overview.hourlyCost.toFixed(2)}/hr</div>
+              <div className="text-xl font-bold mt-1">${Number(categoryOverview.hourlyCost ?? 0).toFixed(2)}/hr</div>
               <div className="text-xs text-muted-foreground mt-0.5">Committed Use Discount Applied</div>
             </div>
           </div>
@@ -310,14 +392,14 @@ export default function HardwareOrchestration() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {currentCategory.devices.map((device: any) => (
+                  {categoryDevices.map((device: any) => (
                     <tr key={device.id} className="hover:bg-accent/40 transition">
                       <td className="py-3 px-3 font-mono font-medium text-foreground">{device.id}</td>
                       <td className="py-3 px-3">{device.type}</td>
                       <td className="py-3 px-3 text-muted-foreground">{device.region}</td>
                       <td className="py-3 px-3 font-mono font-semibold text-emerald-400">{device.mxuDutyCycle}%</td>
                       <td className="py-3 px-3">{device.hbmThroughputGBs} GB/s</td>
-                      <td className="py-3 px-3 font-semibold">${device.costPerHour.toFixed(2)}/hr</td>
+                      <td className="py-3 px-3 font-semibold">${Number(device.costPerHour ?? 0).toFixed(2)}/hr</td>
                       <td className="py-3 px-3 font-mono text-[11px] text-primary">{device.workload}</td>
                       <td className="py-3 px-3">
                         <span className="rounded-full bg-emerald-500/15 text-emerald-400 px-2 py-0.5 font-semibold text-[10px]">
@@ -338,17 +420,17 @@ export default function HardwareOrchestration() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Total Managed Cores</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.totalCores} vCPUs</div>
-              <div className="text-xs text-sky-400 mt-0.5">{currentCategory.overview.architectureBreakdown}</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.totalCores ?? 0} vCPUs</div>
+              <div className="text-xs text-sky-400 mt-0.5">{categoryOverview.architectureBreakdown ?? "ARM / x86"}</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Avg Core Saturation</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.avgUtilization}%</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.avgUtilization ?? 0}%</div>
               <div className="text-xs text-muted-foreground mt-0.5">Tokenization & Vector Embedding Nodes</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">CPU Compute Hourly Spend</div>
-              <div className="text-xl font-bold mt-1">${currentCategory.overview.hourlyCost.toFixed(2)}/hr</div>
+              <div className="text-xl font-bold mt-1">${Number(categoryOverview.hourlyCost ?? 0).toFixed(2)}/hr</div>
               <div className="text-xs text-muted-foreground mt-0.5">High Efficiency Graviton Instances</div>
             </div>
           </div>
@@ -370,14 +452,14 @@ export default function HardwareOrchestration() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {currentCategory.devices.map((device: any) => (
+                  {categoryDevices.map((device: any) => (
                     <tr key={device.id} className="hover:bg-accent/40 transition">
                       <td className="py-3 px-3 font-mono font-medium">{device.id}</td>
                       <td className="py-3 px-3">{device.type}</td>
                       <td className="py-3 px-3 font-mono">{device.cores} Cores</td>
                       <td className="py-3 px-3 font-mono">{device.utilization}%</td>
                       <td className="py-3 px-3">{device.memoryGB} GB</td>
-                      <td className="py-3 px-3 font-semibold">${device.costPerHour.toFixed(2)}</td>
+                      <td className="py-3 px-3 font-semibold">${Number(device.costPerHour ?? 0).toFixed(2)}</td>
                       <td className="py-3 px-3 text-muted-foreground">{device.role}</td>
                       <td className="py-3 px-3">
                         <span className="rounded-full bg-sky-500/15 text-sky-400 px-2 py-0.5 font-semibold text-[10px]">
@@ -398,12 +480,12 @@ export default function HardwareOrchestration() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">Deterministic Throughput</div>
-              <div className="text-xl font-bold mt-1 text-emerald-400">{currentCategory.overview.avgTokensPerSec} Tok/s</div>
+              <div className="text-xl font-bold mt-1 text-emerald-400">{categoryOverview.avgTokensPerSec ?? 0} Tok/s</div>
               <div className="text-xs text-muted-foreground mt-0.5">Zero-jitter generation speed</div>
             </div>
             <div className="finops-card p-4">
               <div className="text-xs text-muted-foreground">On-Chip SRAM Interconnect</div>
-              <div className="text-xl font-bold mt-1">{currentCategory.overview.sramBandwidthTBps} TB/s</div>
+              <div className="text-xl font-bold mt-1">{categoryOverview.sramBandwidthTBps ?? 0} TB/s</div>
               <div className="text-xs text-muted-foreground mt-0.5">Direct silicon memory bus</div>
             </div>
             <div className="finops-card p-4">
@@ -429,7 +511,7 @@ export default function HardwareOrchestration() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {currentCategory.devices.map((device: any) => (
+                  {categoryDevices.map((device: any) => (
                     <tr key={device.id} className="hover:bg-accent/40 transition">
                       <td className="py-3 px-3 font-mono font-medium">{device.id}</td>
                       <td className="py-3 px-3">{device.type}</td>

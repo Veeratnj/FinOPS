@@ -1,60 +1,136 @@
-import { useState, useEffect } from "react";
-import { 
-  Boxes, 
-  Server, 
-  Trash2, 
-  AlertCircle, 
-  CheckCircle2, 
-  DollarSign, 
-  HardDrive, 
-  Cpu, 
-  Layers, 
-  Play, 
-  Square, 
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Boxes,
+  Server,
+  Trash2,
+  DollarSign,
+  HardDrive,
   Sparkles,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 import { formatCurrency } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { PageSkeleton } from "@/components/ui/Skeletons";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
+const POLL_INTERVAL_MS = 10_000;
 
 export default function Docker() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [filter, setFilter] = useState<"all" | "running" | "zombie" | "exited">("all");
+  const abortRef = useRef<AbortController | null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const token = localStorage.getItem("access_token");
-        const headers: HeadersInit = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
+  const loadData = useCallback(async (isBackgroundPoll = false) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
-        let res = await fetch(`${API_BASE_URL}/api/docker`, { headers });
-        if (!res.ok) {
-          res = await fetch(`${API_BASE_URL}/docker`, { headers });
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        setData(json);
-      } catch (e) {
-        console.error("Failed to load Docker data from API", e);
-      } finally {
-        setLoading(false);
-      }
+    if (isBackgroundPoll) {
+      setRefreshing(true);
     }
-    loadData();
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers: HeadersInit = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const fetchInit: RequestInit = {
+        headers,
+        signal: controller.signal,
+        ...(isBackgroundPoll ? { priority: "low" } : {}),
+      } as RequestInit;
+
+      let res = await fetch(`${API_BASE_URL}/api/docker`, fetchInit);
+      if (!res.ok) {
+        res = await fetch(`${API_BASE_URL}/docker`, fetchInit);
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      setData(json);
+      setLastUpdated(new Date());
+    } catch (e: any) {
+      if (e?.name !== "AbortError") {
+        console.error("Failed to load Docker data from API", e);
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
 
-  if (loading || !data) return <PageSkeleton />;
+  useEffect(() => {
+    loadData(false);
 
-  const { summary, hostNodes, containers, storageWaste } = data;
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadData(true);
+      }
+    }, POLL_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        loadData(true);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      abortRef.current?.abort();
+    };
+  }, [loadData]);
+
+  if (loading && !data) return <PageSkeleton />;
+
+  const summary = data?.summary ?? {};
+  const hostNodes = Array.isArray(data?.hostNodes) ? data.hostNodes : [];
+  const containers = Array.isArray(data?.containers) ? data.containers : [];
+  const storageWaste = Array.isArray(data?.storageWaste) ? data.storageWaste : [];
+  const hasDockerData = Object.keys(summary).length > 0 || hostNodes.length > 0 || containers.length > 0;
+
+  if (!hasDockerData) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">Docker Container Intelligence</h1>
+              <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-0.5 text-xs font-semibold text-sky-400">
+                Host & Daemon Fleet
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Monitor standalone container hosts, daemon memory burn, idle containers, and storage waste.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => loadData(true)}
+            className="inline-flex items-center gap-1.5 rounded-md bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/60 transition"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
+            HTTP Polling (10s)
+          </button>
+        </div>
+
+        <div className="finops-card p-10 text-center space-y-3">
+          <Boxes className="h-10 w-10 text-muted-foreground mx-auto opacity-60" />
+          <h2 className="text-base font-semibold">No Docker Fleet Telemetry Data Yet</h2>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            No container host or storage waste metrics are recorded for this organization yet. Once Docker telemetry is ingested or seeded, this view automatically updates via 10s HTTP polling.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const filteredContainers = containers.filter((c: any) => {
     if (filter === "all") return true;
-    return c.status.toLowerCase().includes(filter);
+    return String(c.status ?? "").toLowerCase().includes(filter);
   });
 
   return (
@@ -74,9 +150,18 @@ export default function Docker() {
         </div>
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            Docker Engine v26.1 / containerd
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            HTTP Poll (10s) • Docker v26.1
           </span>
+          <button
+            type="button"
+            onClick={() => loadData(true)}
+            title={lastUpdated ? `Last synced ${lastUpdated.toLocaleTimeString()}` : "Refresh now"}
+            className="inline-flex items-center gap-1.5 rounded-md bg-card px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground border border-border/60 transition"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin text-primary")} />
+            Sync
+          </button>
         </div>
       </div>
 
@@ -87,11 +172,11 @@ export default function Docker() {
             <span className="text-xs font-medium uppercase tracking-wider">Active Containers</span>
             <Boxes className="h-4 w-4 text-sky-400" />
           </div>
-          <div className="text-2xl font-bold">{summary.runningContainers} Running</div>
+          <div className="text-2xl font-bold">{summary.runningContainers ?? 0} Running</div>
           <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{summary.totalHosts} Docker Hosts</span>
+            <span>{summary.totalHosts ?? 0} Docker Hosts</span>
             <span>•</span>
-            <span className="text-rose-400 font-medium">{summary.zombieContainers} Zombie / Idle</span>
+            <span className="text-rose-400 font-medium">{summary.zombieContainers ?? 0} Zombie / Idle</span>
           </div>
         </div>
 
@@ -100,7 +185,7 @@ export default function Docker() {
             <span className="text-xs font-medium uppercase tracking-wider">Monthly Spend</span>
             <DollarSign className="h-4 w-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-bold">{formatCurrency(summary.monthlyContainerSpend)}/mo</div>
+          <div className="text-2xl font-bold">{formatCurrency(summary.monthlyContainerSpend ?? 0)}/mo</div>
           <div className="mt-1 text-xs text-muted-foreground">
             Compute & Daemon overhead
           </div>
@@ -111,7 +196,7 @@ export default function Docker() {
             <span className="text-xs font-medium uppercase tracking-wider">Dangling Storage Waste</span>
             <HardDrive className="h-4 w-4 text-rose-400" />
           </div>
-          <div className="text-2xl font-bold text-rose-400">{summary.danglingStorageGB} GB</div>
+          <div className="text-2xl font-bold text-rose-400">{summary.danglingStorageGB ?? 0} GB</div>
           <div className="mt-1 text-xs text-muted-foreground">
             Orphaned layers & volumes
           </div>
@@ -122,7 +207,7 @@ export default function Docker() {
             <span className="text-xs font-medium uppercase tracking-wider text-primary">Reclaimable Savings</span>
             <Sparkles className="h-4 w-4 text-primary" />
           </div>
-          <div className="text-2xl font-bold text-primary">{formatCurrency(summary.potentialMonthlySavings)}/mo</div>
+          <div className="text-2xl font-bold text-primary">{formatCurrency(summary.potentialMonthlySavings ?? 0)}/mo</div>
           <div className="mt-1 text-xs text-muted-foreground">
             Prune waste & terminate zombies
           </div>
@@ -131,9 +216,16 @@ export default function Docker() {
 
       {/* Docker Hosts Fleet Status */}
       <div className="finops-card p-5">
-        <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-          <Server className="h-4 w-4 text-muted-foreground" />
-          <span>Container Daemon Hosts</span>
+        <h3 className="text-sm font-semibold mb-4 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Server className="h-4 w-4 text-muted-foreground" />
+            <span>Container Daemon Hosts</span>
+          </span>
+          {lastUpdated && (
+            <span className="text-xs text-muted-foreground font-normal">
+              Auto-polled every 10s • {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {hostNodes.map((node: any) => (
@@ -143,7 +235,7 @@ export default function Docker() {
                 <span className={cn(
                   "px-1.5 py-0.5 rounded text-[10px] font-semibold",
                   node.status === "Healthy" ? "bg-emerald-500/15 text-emerald-400" :
-                  node.status.includes("Storage") ? "bg-amber-500/15 text-amber-400" :
+                  String(node.status).includes("Storage") ? "bg-amber-500/15 text-amber-400" :
                   "bg-rose-500/15 text-rose-400"
                 )}>
                   {node.status}
@@ -161,8 +253,8 @@ export default function Docker() {
                     <span>{node.cpuUsage}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={cn("h-full rounded-full", node.cpuUsage > 80 ? "bg-rose-500" : "bg-sky-400")} 
+                    <div
+                      className={cn("h-full rounded-full", node.cpuUsage > 80 ? "bg-rose-500" : "bg-sky-400")}
                       style={{ width: `${node.cpuUsage}%` }}
                     />
                   </div>
@@ -174,8 +266,8 @@ export default function Docker() {
                     <span>{node.memUsage}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={cn("h-full rounded-full", node.memUsage > 80 ? "bg-rose-500" : "bg-primary")} 
+                    <div
+                      className={cn("h-full rounded-full", node.memUsage > 80 ? "bg-rose-500" : "bg-primary")}
                       style={{ width: `${node.memUsage}%` }}
                     />
                   </div>
@@ -187,8 +279,8 @@ export default function Docker() {
                     <span>{node.diskUsage}%</span>
                   </div>
                   <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className={cn("h-full rounded-full", node.diskUsage > 85 ? "bg-amber-500" : "bg-muted-foreground")} 
+                    <div
+                      className={cn("h-full rounded-full", node.diskUsage > 85 ? "bg-amber-500" : "bg-muted-foreground")}
                       style={{ width: `${node.diskUsage}%` }}
                     />
                   </div>
@@ -209,10 +301,11 @@ export default function Docker() {
               {(["all", "running", "zombie", "exited"] as const).map((mode) => (
                 <button
                   key={mode}
+                  type="button"
                   onClick={() => setFilter(mode)}
                   className={cn(
                     "px-2.5 py-1 text-xs rounded-lg font-medium capitalize transition",
-                    filter === mode 
+                    filter === mode
                       ? "bg-primary text-primary-foreground font-semibold"
                       : "bg-muted text-muted-foreground hover:text-foreground"
                   )}
@@ -245,7 +338,7 @@ export default function Docker() {
                     <td className="py-3 px-3 font-mono">
                       <span>{c.cpu}</span> • <span>{c.mem}</span>
                     </td>
-                    <td className="py-3 px-3 font-semibold">${c.costPerHour.toFixed(2)}</td>
+                    <td className="py-3 px-3 font-semibold">${Number(c.costPerHour ?? 0).toFixed(2)}</td>
                     <td className="py-3 px-3 text-muted-foreground">{c.category}</td>
                     <td className="py-3 px-3">
                       <span className={cn(
@@ -283,11 +376,11 @@ export default function Docker() {
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span>Count: {item.count}</span>
-                  <span>Cost: ${item.costPerMonth.toFixed(2)}/mo</span>
+                  <span>Cost: ${Number(item.costPerMonth ?? 0).toFixed(2)}/mo</span>
                 </div>
                 <div className="flex items-center justify-between pt-1 border-t border-border/40">
                   <span className="font-mono text-[10px] text-muted-foreground">{item.action}</span>
-                  <button className="text-[10px] text-primary hover:underline font-semibold flex items-center gap-1">
+                  <button type="button" className="text-[10px] text-primary hover:underline font-semibold flex items-center gap-1">
                     <Trash2 className="h-3 w-3" /> Prune
                   </button>
                 </div>

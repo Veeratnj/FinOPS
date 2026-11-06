@@ -1037,7 +1037,7 @@ class DockerAnalyticsRecord(TimestampMixin, TenantMixin, Base):
     summary: Mapped[dict] = mapped_column(JSONB, default=dict)
     host_nodes: Mapped[list] = mapped_column(JSONB, default=list)
     containers: Mapped[list] = mapped_column(JSONB, default=list)
-    storage_waste: Mapped[dict] = mapped_column(JSONB, default=dict)
+    storage_waste: Mapped[list] = mapped_column(JSONB, default=list)
 
     tenant: Mapped[Tenant] = relationship("Tenant")
 
