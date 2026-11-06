@@ -62,6 +62,17 @@ def get_token_ops(
     return intelligence_service.get_token_ops(db, tenant_id)
 
 
+@intelligence_controller.post("/token-ops/seed")
+def seed_token_ops(
+    force: bool = True,
+    db: Session = Depends(deps.get_db),
+    current_user: Any = Depends(deps.get_current_user_optional),
+) -> dict[str, Any]:
+    """Seed or refresh Token-OPS analytics data in PostgreSQL for the active tenant."""
+    tenant_id = _get_tenant_id(current_user, db)
+    return intelligence_service.seed_token_ops(db, tenant_id, force=force)
+
+
 @intelligence_controller.get("/llm-ops")
 def get_llm_ops(
     db: Session = Depends(deps.get_db),

@@ -550,22 +550,30 @@ def seed_database() -> None:
                 recommendations=hw_data.get("recommendations", []),
             ))
 
-        t_data = fake_data.get("tokenOps", {})
-        existing_t = db.query(TokenOpsRecord).filter(TokenOpsRecord.tenant_id == tenant.id).first()
-        if not existing_t:
-            db.add(TokenOpsRecord(
-                tenant_id=tenant.id,
-                summary=t_data.get("summary", {}),
-                kpis=t_data.get("kpis", {}),
-                cost_trend=t_data.get("costTrend", []),
-                top_consumers=t_data.get("topConsumers", {}),
-                model_breakdown=t_data.get("modelBreakdown", []),
-                prompt_analytics=t_data.get("promptAnalytics", []),
-                data=t_data,
-            ))
-        else:
-            existing_t.data = t_data
-            db.add(existing_t)
+        from app.core.token_ops_seed_data import get_default_token_ops_payload
+        t_data = fake_data.get("tokenOps") or get_default_token_ops_payload()
+        prompt_analytics_obj = (
+            t_data.get("promptAnalytics")
+            if isinstance(t_data.get("promptAnalytics"), dict)
+            else {item["label"]: item["value"] for item in t_data.get("promptAnalysis", []) if "label" in item}
+        )
+        for target_tenant in db.query(Tenant).all():
+            existing_t = db.query(TokenOpsRecord).filter(TokenOpsRecord.tenant_id == target_tenant.id).first()
+            if not existing_t:
+                db.add(TokenOpsRecord(
+                    tenant_id=target_tenant.id,
+                    summary=t_data.get("summary", {}),
+                    kpis=t_data.get("summaryCards", []),
+                    cost_trend=t_data.get("usageTrend", []),
+                    top_consumers=t_data.get("topConsumers", {}),
+                    model_breakdown=t_data.get("modelComparison", []),
+                    prompt_analytics=prompt_analytics_obj,
+                    data=t_data,
+                ))
+            else:
+                existing_t.top_consumers = t_data.get("topConsumers", {})
+                existing_t.data = t_data
+                db.add(existing_t)
 
         l_data = fake_data.get("llmOps", {})
         existing_l = db.query(LLMOpsRecord).filter(LLMOpsRecord.tenant_id == tenant.id).first()

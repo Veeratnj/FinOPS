@@ -5,11 +5,13 @@ All data queried directly from PostgreSQL database records.
 
 from typing import Any, Optional
 from sqlalchemy.orm import Session
+from app.core.token_ops_seed_data import get_default_token_ops_payload
 from app.repositories.intelligence_repo import intelligence_repo
 from app.models import (
     DockerAnalyticsRecord,
     MultiCloudAnalyticsRecord,
     HardwareOrchestrationRecord,
+    Tenant,
     TokenOpsRecord,
 )
 
@@ -53,6 +55,79 @@ class IntelligenceService:
                 "recommendations": record.recommendations or [],
             }
         return {"summary": {}, "accelerators": {}, "recommendations": []}
+
+    @staticmethod
+    def seed_token_ops(
+        db: Session,
+        tenant_id: str,
+        force: bool = True,
+        user_display_name: Optional[str] = None,
+    ) -> dict[str, Any]:
+        """Insert or update TokenOpsRecord in PostgreSQL for a specific tenant."""
+        payload = get_default_token_ops_payload()
+        if user_display_name:
+            users_list = payload.get("topConsumers", {}).get("users", [])
+            if not any(u.get("name", "").lower() == user_display_name.lower() for u in users_list):
+                users_list.insert(
+                    0,
+                    {
+                        "name": user_display_name,
+                        "requests": 2140,
+                        "tokens": 342000,
+                        "cost": 365,
+                        "active": "Just now",
+                    },
+                )
+
+        tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+        if not tenant:
+            raise ValueError(f"Tenant '{tenant_id}' not found")
+
+        record = intelligence_repo.get_token_ops(db, tenant.id)
+        has_data = bool(record and record.data and record.data.get("summaryCards"))
+        if record and has_data and not force:
+            res = dict(record.data)
+            res["id"] = record.id
+            return res
+
+        summary_obj = {
+            "totalTokens": 16400000,
+            "promptTokens": 9800000,
+            "completionTokens": 4600000,
+            "cachedTokens": 1200000,
+            "embeddingTokens": 820000,
+            "totalCostUsd": 17701.95,
+            "estimatedSavingsUsd": 3100.00,
+        }
+        prompt_analytics_obj = {item["label"]: item["value"] for item in payload.get("promptAnalysis", [])}
+
+        if not record:
+            record = TokenOpsRecord(
+                tenant_id=tenant.id,
+                summary=summary_obj,
+                kpis=payload.get("summaryCards", []),
+                cost_trend=payload.get("usageTrend", []),
+                top_consumers=payload.get("topConsumers", {}),
+                model_breakdown=payload.get("modelComparison", []),
+                prompt_analytics=prompt_analytics_obj,
+                data=payload,
+            )
+            db.add(record)
+        else:
+            record.summary = summary_obj
+            record.kpis = payload.get("summaryCards", [])
+            record.cost_trend = payload.get("usageTrend", [])
+            record.top_consumers = payload.get("topConsumers", {})
+            record.model_breakdown = payload.get("modelComparison", [])
+            record.prompt_analytics = prompt_analytics_obj
+            record.data = payload
+            db.add(record)
+
+        db.commit()
+        db.refresh(record)
+        res = dict(record.data)
+        res["id"] = record.id
+        return res
 
     @staticmethod
     def get_token_ops(db: Session, tenant_id: str) -> dict[str, Any]:

@@ -12,9 +12,14 @@ class UserRepository(BaseRepository[User]):
     """User repository."""
 
     def get_by_email(self, db: Session, email: str) -> Optional[User]:
-        """Get user by email (case-insensitive and trimmed)."""
+        """Get user by email (case-insensitive and trimmed), preferring the most recently updated account."""
         clean_email = email.strip().lower()
-        return db.query(User).filter(func.lower(User.email) == clean_email).first()
+        return (
+            db.query(User)
+            .filter(func.lower(User.email) == clean_email)
+            .order_by(User.updated_at.desc(), User.created_at.desc())
+            .first()
+        )
 
     def get_by_tenant_and_email(self, db: Session, tenant_id: str, email: str) -> Optional[User]:
         """Get user by tenant and email."""

@@ -1458,7 +1458,7 @@
       },
       {
         "label": "Total Cost",
-        "value": ".2K",
+        "value": "$17.7K",
         "delta": "+8%",
         "icon": "TrendingUp"
       },
@@ -1470,7 +1470,7 @@
       },
       {
         "label": "Estimated Savings",
-        "value": ".1K",
+        "value": "$3.1K",
         "delta": "+22%",
         "icon": "Sparkles"
       }
@@ -1757,7 +1757,7 @@
       },
       {
         "label": "Money Saved",
-        "value": ""
+        "value": "$1,840"
       }
     ],
     "recommendations": [
@@ -1851,7 +1851,7 @@
         "channel": "Email"
       },
       {
-        "rule": "Monthly Cost > ",
+        "rule": "Monthly Cost > $15,000",
         "channel": "Slack"
       },
       {

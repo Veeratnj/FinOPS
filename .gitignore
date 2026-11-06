@@ -1,0 +1,76 @@
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+*.env
+.env.*
+!.env.example
+!.env.dev.example
+!**/.env.example
+!**/.env.dev.example
+
+# =============================================================================
+# Python (API & Agents)
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.db
+*.sqlite3
+
+# =============================================================================
+# Frontend (Node / Vite / React / Playwright)
+# =============================================================================
+node_modules/
+dist/
+dist-ssr/
+build/
+*.local
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# =============================================================================
+# Terraform & Agent State Artifacts
+# =============================================================================
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# =============================================================================
+# Logs, OS & IDEs
+# =============================================================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+.codex/
+
